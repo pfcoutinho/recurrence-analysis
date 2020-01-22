@@ -12,7 +12,7 @@ Here are some examples of distance matrices and recurrence plots, which are obta
 
 ![The sequence drawn from the uniform distribution](imgs/img1_seq.png)
 
-**Figure 1** _Distance matrix and recurrence plot of a sequence drawn from the uniform distribution_ U(0,1)_. In this example, the embedding dimension = 1 and the threshold = 0.2._
+**Figure 1** _Distance matrix and recurrence plot of a sequence drawn from the uniform distribution_ x(t) \~ U(0,1)_. In this example, the embedding dimension = 1 and the threshold = 0.2._
 
 ### Sinusoidal function
 
