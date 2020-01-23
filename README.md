@@ -21,3 +21,7 @@ Here are some examples of distance matrices and recurrence plots, which are obta
 ![The sinusoidal function](imgs/img2_seq.png)
 
 **Figure 2** _Distance matrix and recurrence plot of a sinusoidal function given by_ x(t) = sin(2\*pi\*0.05\*t)_. In this example, the embedding dimension = 2, the time delay = 3, and the threshold = 0.2._
+
+## License
+
+MIT license (see LICENSE.txt for more details).
