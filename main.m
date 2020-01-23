@@ -10,71 +10,86 @@ close all
 clear
 clc
 
-X = sin(2*pi*0.05*(1:100));
+x = sin(2*pi*0.05*(1:100));
 
-DMofX = distmatrix(2, 3, 'L1', X);
-RPofX = recplot(2, 3, 0.2, 'L1', X);
+RP = recplot(2, 3, 0.2, 'L1', x);
 
 figure()
-plot(X)
+
+subplot(5, 1, 1)
+plot(x)
 ylabel("x(t)")
 xlabel("t")
 xlim([1, 100])
 set(gca, "XTick", [1, 10:10:100])
-set(gcf, "Position", [400, 250, 600, 120]);
 
-figure()
-plotrp(DMofX)
-
-figure()
-plotrp(RPofX)
+subplot(5, 1, [2, 5])
+plotrp(RP)
 
 %% Distance matrix and recurrence plot for a random time series
 close all
 clear
 clc
 
-X = rand(100, 1);
+x = rand(100, 1);
 
-DMofX = distmatrix(1, 1, 'L1', X);
-RPofX = recplot(1, 1, 0.2, 'L1', X);
+RP = recplot(1, 1, 0.2, 'L1', x);
 
 figure()
-plot(X)
+
+subplot(5, 1, 1)
+plot(x)
 ylabel("x(t)")
 xlabel("t")
 xlim([1, 100])
 set(gca, "XTick", [1, 10:10:100])
-set(gcf, "Position", [400, 250, 600, 120]);
 
-figure()
-plotrp(DMofX)
-
-figure()
-plotrp(RPofX)
+subplot(5, 1, [2, 5])
+plotrp(RP)
 
 %% Corridor thresholded version of the recurrence plot for one time series
 close all
 clear
 clc
 
-X = rand(100, 1);
+x = rand(100, 1);
 
-RPofX = recplot(1, 1, [0.0, 0.2], 'Linf', X);
+RP = recplot(1, 1, [0.1, 0.2], 'Linf', x);
 
 figure()
-plotrp(RPofX, 'bw')
-plotrp(RPofX)
+
+subplot(5, 1, 1)
+plot(x)
+ylabel("x(t)")
+xlabel("t")
+xlim([1, 100])
+set(gca, "XTick", [1, 10:10:100])
+
+subplot(5, 1, [2, 5])
+plotrp(RP)
 
 %% Cross-recurrence plot between two time series
 close all
 clear
 clc
 
-X = rand(100, 1);
-Y = rand(150, 1);
+x = rand(100, 1);
+y = rand(150, 1);
 
-XRPofXandY = recplot(1, 1, 0.2, 'Linf', X, Y);
+XRP = recplot(1, 1, 0.2, 'Linf', x, y);
 
 figure()
-plotrp(XRPofXandY)
+plotrp(XRP)
+
+%% Corridor thresholded version of cross-recurrence plot between two time series
+close all
+clear
+clc
+
+x = rand(100, 1);
+y = rand(150, 1);
+
+XRP = recplot(1, 1, [0.1, 0.2], 'Linf', x, y);
+
+figure()
+plotrp(XRP)
