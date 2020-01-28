@@ -99,19 +99,6 @@ function [DM] = distmatrix(m, t, dtype, varargin)
         parameters.timeDelay = 1;        % for computational purpose;
     end
     
-    % similarity or distance function;
-    if ~ischar(parameters.distance)
-        err_str = ['Similarity or distance function must be ', ...
-            'specified by a string'];
-        error(err_str);
-    end   
-    
-    DFUNCS = {'L1','L2','Linf','cos','Gower','Lorentzian', ...
-        'intersec','inner_prod','Jaccard','Dice'};
-    if ~ismember(parameters.distance, DFUNCS)
-        error('Invalid similiarity or distance function');
-    end
-    
     % time series;
     if ~isnumeric(x)
         error('Data series must be numeric vectors');
