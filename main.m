@@ -10,6 +10,12 @@
 %   pfcoutinho@outlook.com
 %
 % Last update: Jan 28, 2020
+%% HOW TO USE
+% 
+%
+%
+%
+%
 %% Distance matrix and recurrence plot for a sinusoidal time series
 close all
 clear
