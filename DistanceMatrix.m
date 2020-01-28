@@ -32,6 +32,89 @@ classdef DistanceMatrix
             obj.M = dm(obj, varargin{1:end});
         end % END DistanceMatrix()
         
+        %
+        % Parameters validation
+        %
+        
+        function obj = validateparameter(obj, name)
+            switch name
+                case 'embedding dimension'
+                    validateembeddingdimension(obj);
+                case 'time delay'
+                    validatetimedelay(obj);
+                case 'norm'
+                    obj = validatenorm(obj);
+            end
+        end
+        
+        function validateembeddingdimension(obj)
+        %VALIDATEEMBEDDINGDIMENSION
+        % -------------------------------------------------------------------- %
+        end % END validateembeddingdimension()
+        
+        function validatetimedelay(obj)
+        %VALIDATETIMEDELAY
+        % -------------------------------------------------------------------- %
+        end % END validatetimedelay()
+
+        function obj = validatenorm(obj)
+        %VALIDATENORM
+        % -------------------------------------------------------------------- %   
+            if(isstring(obj.normType))
+                obj.normType = char(obj.normType);
+            elseif(isnumeric(obj.normType))
+                if(isscalar(obj.normType))
+                    if(obj.normType < 1 && obj.normType > 3)
+                        msg = strcat("Norm can be an integer number ", ...
+                            "between 1 and 3: 'L1' = 1, 'L2' = 2, and ", ...
+                            "'L-infinity' = 3.");
+                        error(msg);
+                    else
+                        switch obj.normType
+                            case 1
+                                obj.normType = 'L1';
+                            case 2
+                                obj.normType = 'L2';
+                            case 3
+                                obj.normType = 'L-infinity';
+                        end
+                    end
+                else
+                    msg = strcat("Norm can be an integer number: 'L1' = 1,", ...
+                        " 'L2' = 2, or 'L-infinity' = 3.");
+                    error(msg);
+                end
+            end
+            
+            NORM_TYPES = {'L1','l1','L2','l2','L-infinity','l-infinity'};
+            if(~ismember(obj.normType, NORM_TYPES))
+                msg = strcat("Invalid norm. Choose among 'L1', 'L2', and ", ...
+                    "'L-infinity'.");
+                error(msg);
+            end
+
+            switch obj.normType
+                case 'l1'
+                    obj.normType = 'L1';
+                case 'l2'
+                    obj.normType = 'L2';
+                case 'l-infinity'
+                    obj.normType = 'L-infinity';
+            end
+        end % END validatenorm()
+        
+        %
+        % Data validation
+        %
+        
+        function validatedata()
+            
+        end % END validatedata()
+        
+        %
+        % Distance calculation
+        %
+        
         function D = dm(obj, varargin)
         %DM Distance matrix
         %   This function calculates the distance matrix.
@@ -125,85 +208,6 @@ classdef DistanceMatrix
                 end
             end
         end % END idc()
-        
-        %
-        % Parameters validation
-        %
-        
-        function obj = validateparameter(obj, name)
-            switch name
-                case 'embedding dimension'
-                    validateembeddingdimension(obj);
-                case 'time delay'
-                    validatetimedelay(obj);
-                case 'norm'
-                    obj = validatenorm(obj);
-            end
-        end
-        
-        function validateembeddingdimension(obj)
-        %VALIDATEEMBEDDINGDIMENSION
-        % -------------------------------------------------------------------- %
-        end % END validateembeddingdimension()
-        
-        function validatetimedelay(obj)
-        %VALIDATETIMEDELAY
-        % -------------------------------------------------------------------- %
-        end % END validatetimedelay()
-
-        function obj = validatenorm(obj)
-        %VALIDATENORM
-        % -------------------------------------------------------------------- %   
-            if(isstring(obj.normType))
-                obj.normType = char(obj.normType);
-            elseif(isnumeric(obj.normType))
-                if(isscalar(obj.normType))
-                    if(obj.normType < 1 && obj.normType > 3)
-                        msg = strcat("Norm can be an integer number ", ...
-                            "between 1 and 3: 'L1' = 1, 'L2' = 2, and ", ...
-                            "'L-infinity' = 3.");
-                        error(msg);
-                    else
-                        switch obj.normType
-                            case 1
-                                obj.normType = 'L1';
-                            case 2
-                                obj.normType = 'L2';
-                            case 3
-                                obj.normType = 'L-infinity';
-                        end
-                    end
-                else
-                    msg = strcat("Norm can be an integer number: 'L1' = 1,", ...
-                        " 'L2' = 2, or 'L-infinity' = 3.");
-                    error(msg);
-                end
-            end
-            
-            NORM_TYPES = {'L1','l1','L2','l2','L-infinity','l-infinity'};
-            if(~ismember(obj.normType, NORM_TYPES))
-                msg = strcat("Invalid norm. Choose among 'L1', 'L2', and ", ...
-                    "'L-infinity'.");
-                error(msg);
-            end
-
-            switch obj.normType
-                case 'l1'
-                    obj.normType = 'L1';
-                case 'l2'
-                    obj.normType = 'L2';
-                case 'l-infinity'
-                    obj.normType = 'L-infinity';
-            end
-        end % END validatenorm()
-        
-        %
-        % Data validation
-        %
-        
-        function validatedata()
-            
-        end % END validatedata()
         
         %
         % Plot
