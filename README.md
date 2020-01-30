@@ -2,9 +2,21 @@
 
 The files in this repository can be used to perform recurrence analysis of time series in MATLAB. With them you can generate the distance matrix (DM) and the recurrence plot (RP). Soon, you will also be able to carry out recurrence quantification analysis (RQA) and recurrence network analysis (RNA).
 
+-----------
+
+## Content
+
+1. [Distance Matrix (DM)](Distance Matrix (DM))
+2. [Recurrence Plot (RP)][Recurrence Plot (RP)]
+3. Recurrence Quantification Analysis (RQA)
+4. Recurrence Network Analysis (RNA)
+
+-----------
+## Distance Matrix (DM)
+
 ## Recurrence Plot
 
-Here are some examples of distance matrices and recurrence plots, which are obtained from the distance matrices threshold after the application of the threshold. See how beautiful and informative these binary matrices are!
+Here are some examples recurrence plots. See how beautiful and informative these binary matrices can be!
 
 ### Stochastic process
 
@@ -21,6 +33,10 @@ Here are some examples of distance matrices and recurrence plots, which are obta
 ![The sinusoidal function](imgs/img2_seq.png)
 
 **Figure 2** _Distance matrix and recurrence plot of a sinusoidal function given by_ x(t) = sin(2\*pi\*0.05\*t)_. In this example, the embedding dimension = 2, the time delay = 3, and the threshold = 0.2._
+
+## Recurrence Quantification Analysis
+
+## Recurrence Network Analysis
 
 ## License
 
