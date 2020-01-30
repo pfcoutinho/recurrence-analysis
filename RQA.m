@@ -1,5 +1,5 @@
-classdef RecurrenceAnalysis
-%RECURRENCEANALYSIS Recurrence analysis of recurrence plots
+classdef RQA
+%RQA Recurrence quantification analysis
 %   This class performs recurrence quantification analysis (RQA) of recurrence 
 %   plots, which are binary matrices (i.e., A(i, j) = {0, 1}).
 %
