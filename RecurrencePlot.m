@@ -1,18 +1,40 @@
-classdef RecurrencePlot < DistanceMatrix
+classdef RecurrencePlot < Recurrence
 %RECURRENCEPLOT Recurrence plot
 %   This class can be used to generate the recurrence plot of a time series or
 %   the cross-recurrence plot between two time series (in this case, it is not
 %   necessary for the time series to have the same length).
 %
+%   RecurrencePlot class extends Recurrence class and inherits its properties:
+%   embeddingDimension, timeDelay, and normType.
+%
+% PROPERTIES
+%   RP
+%       Recurrence or cross-recurrence plot (binary matrix)
+%
+%   See Recurrence class for a description of the other properties.
+%
+% METHODS
+%   plotr()
+%       Plot the recurrence or the cross-recurrence plot
+%
+% SYNTAX
+%   To obtain the recurrence plot:
+%   RPobj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType,
+%       timeSeries)
+%
+%   To obtain the cross-recurrence plot:
+%   RPobj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType,
+%       timeSeries1, timeSeries2)
+%
 % CONTACT
 %   Patrick Franco Coutinho
 %   pfcoutinho@outlook.com
 %
-% Last update: Jan 28, 2020
+% Last update: Jan 30, 2020
 % ============================================================================ %
 
     properties
-        threshold       % Threshold
+        RP              % Recurrence plot
     end
 
     methods
@@ -22,88 +44,69 @@ classdef RecurrencePlot < DistanceMatrix
 
         function obj = RecurrencePlot(embeddingDimension, timeDelay, ...
                 threshold, normType, varargin)
+            
+            % Superclass constructor
+            obj = obj@Recurrence(embeddingDimension, timeDelay, threshold, ...
+                normType);
 
-            % Call superclass
-            obj@DistanceMatrix(embeddingDimension, timeDelay, normType, ...
-                varargin{1:end});
+            % Obtain the distance matrix (DM)
+            obj.RP = dm(obj, varargin{1:end});
             
-            % Threshold
-            obj.threshold = threshold;
+            % Apply the threshold
+            recurrenceType = checkrecurrencetype(obj);
             
-            if(validateparameter(obj))
-            	recurrenceType = checkrecurrencetype(obj);
-            end
-            
-            % Generate the normal / corridor version of the recurrence plot or 
-            % the cross-recurrence plot
             switch recurrenceType
                 case 'normal'
-                    obj.M = (obj.M <= obj.threshold);
+                    obj.RP = (obj.RP <= obj.threshold);
                 case 'corridor'
-                    obj.M = and(obj.M >= obj.threshold(1), ...
-                        obj.M <= obj.threshold(2));
+                    obj.RP = and(obj.RP >= obj.threshold(1), ...
+                        obj.RP <= obj.threshold(2));
+            end
+            
+            % Make it sparse? Yes, if the quantity of recurrence points is
+            % less than 20% of the total points
+            [m, n] = size(obj.RP);
+            if(sum(obj.RP(1:end)/(m*n)) < 0.2)
+                obj.RP = sparse(obj.RP);
             end
             
         end % END RecurrencePlot()
         
         %
-        % Validation (threshold parameter)
+        % Plot
         %
         
-        function returnValue = validateparameter(obj)
-        %VALIDATEPARAMETER
+        function plotr(obj)
+        %PLOTR
         % -------------------------------------------------------------------- %
-            returnValue = validatethreshold(obj);
+            plotr@Recurrence(obj.RP);
         end
         
-        function returnValue = validatethreshold(obj)
-        %VALIDATETHRESHOLD
-        % -------------------------------------------------------------------- %
-            if(isscalar(obj.threshold))
-
-            elseif(isvector(obj.threshold))
-                % Corridor thresholded version of the recurrence plot
-                obj.threshold = sort(obj.threshold, 'ascend');
-            else
-                error("Invalid threshold parameter")
-            end
-
-            returnValue = true;
-        end % END validatethreshold()
+        %
+        % Set
+        %
         
+        function obj = setthreshold(obj, newThreshold)
+            obj = setthreshold@Recurrence(obj, newThreshold);
+        end
+        
+    end % END public methods
+    
+    methods (Access = protected)
         
         function recurrenceType = checkrecurrencetype(obj)
         %CHECKRECURRENCETYPE
         % -------------------------------------------------------------------- %
-            if(isscalar(obj.threshold))
+            [m, n] = size(obj.threshold);
+            
+            if(m == 1 && n == 1)
                 recurrenceType = 'normal';
-            elseif(isvector(obj.threshold))
+            else
                 % Corridor thresholded version of the recurrence plot
                 recurrenceType = 'corridor';
             end
         end % END checkrecurrencetype()
-
-        %
-        % Plot
-        %
         
-        function plot(obj)
-        %PLOT
-        % -------------------------------------------------------------------- %
-            plot@DistanceMatrix(obj);
-            
-            % Set colors to B&W
-            colormap([1, 1, 1; 0, 0, 0])
-        end
-        
-        %
-        % Get and set
-        %
-        
-        function obj = setThreshold(obj, newThreshold)
-            obj.threshold = newThreshold;
-        end
-        
-    end % END of methods
+    end % END protected methods
 end
 
