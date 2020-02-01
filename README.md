@@ -2,9 +2,9 @@
 
 Recurrence analysis of time series in MATLAB. Generates the distance matrix (DM) and the recurrence plot (RP). It also performs recurrence quantification analysis (RQA) and recurrence network analysis (RNA) of the recurrence matrix.
 
-![Recurrence plots of periodic, chaotic, sthocastic, and auto-regressive processes, respectively.](imgs/img0.png)
+![Recurrence plots of periodic, chaotic, auto-regressive, and sthocastic processes, respectively.](imgs/img0.png)
 
-**Figure 1** _Recurrence plots of periodic, chaotic, sthocastic, and auto-regressive processes, respectively._
+**Figure 1** _Recurrence plots of periodic, chaotic, auto-regressive, and sthocastic processes, respectively._
 
 -----------
 
