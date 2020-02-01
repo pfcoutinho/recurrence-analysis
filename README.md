@@ -1,6 +1,6 @@
 # Recurrence Analysis
 
-Recurrence analysis of time series in MATLAB. Generates the distance matrix (DM) and the recurrence plot (RP). It also performs recurrence quantification analysis (RQA) and recurrence network analysis (RNA) of the recurrence matrix.
+Recurrence analysis of time series in MATLAB. These files can be used to generate the distance matrix (DM) and the recurrence plot (RP). They also performs recurrence quantification analysis (RQA) and recurrence network analysis (RNA) of the recurrence (binary) matrix.
 
 ![Recurrence plots of periodic, chaotic, auto-regressive, and sthocastic processes, respectively.](imgs/img0.png)
 
@@ -14,4 +14,4 @@ Recurrence analysis of time series in MATLAB. Generates the distance matrix (DM)
 
 ## License
 
-MIT license (see LICENSE.txt for more details).
+MIT license (see [LICENSE.txt](./LICENSE.txt) for more details).
