@@ -343,7 +343,7 @@ classdef Recurrence
             
             if(islogical(M))
                 % Set colors to B&W
-                colormap([1, 1, 1; 0.5*rand(1, 3)])
+                colormap([1, 1, 1; rand(1, 3)])
             else
                 colormap('parula')
                 colorbar

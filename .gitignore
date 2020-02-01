@@ -1,2 +1,4 @@
 *.m~
 imgs/*.svg
+imgs/tmp
+

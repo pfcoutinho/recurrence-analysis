@@ -203,6 +203,61 @@ set(gca, "XTick", [1, 10:10:100])
 subplot(5, 1, [2, 5])
 RP.plotr()
 
+%% Chaotic
+close all
+clear
+clc
+
+%
+% Time series
+%
+data    = zeros(100, 1);
+data(1) = 0.2;
+for i = 2:100
+    data(i) = 4*data(i-1)*(1-data(i-1));
+end
+
+%
+% Distance matrix
+%
+try
+    D = DistanceMatrix(2, 2, 'L2', data);
+catch
+
+end
+
+figure()
+
+subplot(5, 1, 1)
+plot(data)
+ylabel("x(t)")
+xlabel("t")
+xlim([1, 100])
+set(gca, "XTick", [1, 10:10:100])
+
+subplot(5, 1, [2, 5])
+D.plotr()
+
+%
+% Recurrence plot
+%
+try
+    RP = RecurrencePlot(2, 2, 0.2, 'L2', data);
+catch
+
+end
+
+figure()
+
+subplot(5, 1, 1)
+plot(data)
+ylabel("x(t)")
+xlabel("t")
+xlim([1, 100])
+set(gca, "XTick", [1, 10:10:100])
+
+subplot(5, 1, [2, 5])
+RP.plotr()
 
 %% Corridor thresholded version of the recurrence plot
 close all
