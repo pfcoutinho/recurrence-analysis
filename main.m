@@ -3,15 +3,17 @@
 % File: main.m
 %
 % The purpose of this file is to demonstrate how to use the following classes:
+%   Recurrence,
 %   DistanceMatrix,
-%   RecurrencePlot, and
-%   RecurrenceAnalysis.
+%   RecurrencePlot, 
+%   RQA, and
+%   RNA.
 %
-% *CONTACT*
+% CONTACT
 %   Patrick Franco Coutinho
 %   pfcoutinho@outlook.com
 %
-% Last update: Jan 28, 2020
+% Last update: Feb 1, 2020
 %% HOW TO USE
 %
 % To run one section at a time, press CTRL + ENTER.
@@ -41,7 +43,7 @@
 %
 %
 %
-%% Distance matrix and recurrence plot for a sinusoidal time series
+%% Sinusoidal function
 close all
 clear
 clc
@@ -49,7 +51,7 @@ clc
 %
 % Time series data
 %
-data = sin(2*pi*0.05*(1:100)');
+data = sin(2*pi*0.05*(1:103)');
 
 %
 % Distance matrix
@@ -66,8 +68,8 @@ subplot(5, 1, 1)
 plot(data)
 ylabel("x(t)")
 xlabel("t")
-xlim([1, 100])
-set(gca, "XTick", [1, 10:10:100])
+xlim([1, numel(data)])
+set(gca, "XTick", [1, round(numel(data)/2), numel(data)])
 
 subplot(5, 1, [2, 5])
 D.plotr()   % or plot(D);
@@ -87,13 +89,13 @@ subplot(5, 1, 1)
 plot(data)
 ylabel("x(t)")
 xlabel("t")
-xlim([1, 100])
-set(gca, "XTick", [1, 10:10:100])
+xlim([1, numel(data)])
+set(gca, "XTick", [1, round(numel(data)/(2)), numel(data)]);
 
 subplot(5, 1, [2, 5])
 RP.plotr()   % or plotr(RP);
 
-%% Distance matrix and recurrence plot for a random time series
+%% Stochastic time series
 close all
 clear
 clc
@@ -145,6 +147,63 @@ set(gca, "XTick", [1, 10:10:100])
 subplot(5, 1, [2, 5])
 RP.plotr()
 
+%% Auto-regressive model
+close all
+clear
+clc
+
+%
+% Time series
+%
+data    = zeros(100, 1);
+data(1) = 0.1;
+for i = 2:100
+    data(i) = data(i-1) + 0.3*randn();
+end
+
+%
+% Distance matrix
+%
+try
+    D = DistanceMatrix(1, 1, 'l1', data);
+catch
+
+end
+
+figure()
+
+subplot(5, 1, 1)
+plot(data)
+ylabel("x(t)")
+xlabel("t")
+xlim([1, 100])
+set(gca, "XTick", [1, 10:10:100])
+
+subplot(5, 1, [2, 5])
+D.plotr()
+
+%
+% Recurrence plot
+%
+try
+    RP = RecurrencePlot(1, 1, 0.2, 'l1', data);
+catch
+
+end
+
+figure()
+
+subplot(5, 1, 1)
+plot(data)
+ylabel("x(t)")
+xlabel("t")
+xlim([1, 100])
+set(gca, "XTick", [1, 10:10:100])
+
+subplot(5, 1, [2, 5])
+RP.plotr()
+
+
 %% Corridor thresholded version of the recurrence plot
 close all
 clear
@@ -153,13 +212,13 @@ clc
 %
 % Time series
 %
-data = rand(100, 1);
+data = 0.1*(1:100) + 0.3*randn(1, 100);
 
 %
 % Recurrence plot
 %
 try
-    RP = RecurrencePlot(1, 1, [0.1, 0.2], 'L-infinity', data);
+    RP = RecurrencePlot(1, 1, [0.0, 0.2], 'L-infinity', data);
 catch ERR
     error(ERR.message)
 end

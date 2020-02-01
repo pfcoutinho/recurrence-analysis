@@ -6,16 +6,6 @@ classdef DistanceMatrix < Recurrence
 %   DistanceMatrix class extends Recurrence class and inherits its properties:
 %   embeddingDimension, timeDelay, and normType.
 %
-% PROPERTIES
-%   DM
-%       Self-distance or cross-distance matrix
-%
-%   See Recurrence class for a description of the other properties.
-%
-% METHODS
-%   plotr()
-%       Plot the self-distance or the cross-distance matrix
-%
 % SYNTAX
 %   To obtain the self-distance matrix:
 %   DMobj = DistanceMatrix(embeddingDimension, timeDelay, normType, timeSeries)
@@ -23,6 +13,16 @@ classdef DistanceMatrix < Recurrence
 %   To obtain the cross-distance matrix:
 %   DMobj = DistanceMatrix(embeddingDimension, timeDelay, normType, timeSeries1,
 %       timeSeries2)
+%
+% PROPERTIES
+%   DM
+%       Self-distance or cross-distance matrix
+%
+%   See Recurrence class for a detailed description of the other properties.
+%
+% METHODS
+%   plotr()
+%       Plot the self-distance or the cross-distance matrix
 %
 % CONTACT
 %   Patrick Franco Coutinho
@@ -56,7 +56,8 @@ classdef DistanceMatrix < Recurrence
         %
         
         function plotr(obj)
-        %PLOTR
+        %PLOTR Plot recurrence object
+        %   In this case, plotr() will plot the distance matrix.
         % -------------------------------------------------------------------- %
             plotr@Recurrence(obj.DM);
         end
@@ -84,21 +85,6 @@ classdef DistanceMatrix < Recurrence
         end % END setnormtype()
         
     end % END public methods
-    
-    methods (Access = protected)
-        %
-        % Data validation
-        %
-        
-        function checkdata()
-        %CHECKDATA
-        % -------------------------------------------------------------------- %
-        
-        end % END checkdata()
-        
-        
-        
-    end % END protected methods
     
 end
 

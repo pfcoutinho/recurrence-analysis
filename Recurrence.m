@@ -1,35 +1,42 @@
 classdef Recurrence
-%RECURRENCE Recurrence parameters
+%RECURRENCE Recurrence
 %   This class contains the recurrence parameters that are used to generate the
 %   distance matrix and the recurrence plot.
 %
+% SYNTAX
+%   obj = Recurrence(embeddingDimension, timeDelay, normType);
+%   obj = Recurrence(embeddingDimension, timeDelay, threshold, normType);
+%
 % PROPERTIES
 %   embeddingDimension
-%
+%       Embedding dimension (positive integer greater than or equal to 1)
 %
 %   timeDelay
+%       Time delay (positive integer greater than or equal to 1)
 %
+%   threshold
+%       Threshold (non-negative real number or interval)
 %
 %   normType
+%       Norm used to compute the distance between state-space vectors
 %
+% METHODS (PUBLIC)
+%   Recurrence()
+%       Class constructor function
+% 
+% METHODS (PUBLIC, STATIC)
+%   plotr()
+%       Plot distance matrix or recurrence plot
 %
-% METHODS
-%
-%
-% SYNTAX
-%
-%
-% REFERENCES
-%   Recurrence Plots and Cross Recurrence Plots. URL: <www.recurrence-plot.tk>.
-%   
 % CONTACT
 %   Patrick Franco Coutinho
 %   pfcoutinho@outlook.com
 %
-% Last update: Jan 30, 2020
+% Last update: Feb 1, 2020
 % ============================================================================ %
 
     properties
+        % Recurrence parameters
         embeddingDimension  % Embedding dimension
         timeDelay           % Time delay
         threshold           % Threshold
@@ -57,10 +64,10 @@ classdef Recurrence
                     error(ERR_MSG);
             end
             
+            % Check recurrence parameters
             obj = checkparameters(obj); 
         end % END Recurrence()
         
-
         %
         % Gets and sets
         % 
@@ -134,20 +141,20 @@ classdef Recurrence
                 
             [m,n] = size(obj.embeddingDimension);
             if(m ~= 1 || n ~= 1)
-                ERR_MSG = strcat(ERR_MSG, " It must be a single integer", ...
-                    " number.");
+                ERR_MSG = strcat(ERR_MSG, " It must be a positive integer", ...
+                    " number greater than or equal to 1.");
                 error(ERR_MSG);
             end
             
             if(obj.embeddingDimension < 1)
-                ERR_MSG = strcat(ERR_MSG, " Its value must be greater than", ...
-                    " or equal to 1.");
+                ERR_MSG = strcat(ERR_MSG, " It must be a positive integer", ...
+                    " number greater than or equal to 1.");
                 error(ERR_MSG);
             end
             
             if(mod(obj.embeddingDimension, 1) ~= 0)
-                ERR_MSG = strcat(ERR_MSG, " Value must an integer greater", ... 
-                    " than or equal to 1.");
+                ERR_MSG = strcat(ERR_MSG, " It must be a positive integer", ...
+                    " number.");
                 error(ERR_MSG);
             end
 
@@ -233,19 +240,24 @@ classdef Recurrence
             end
             
             [m, n] = size(obj.threshold);
+            if(m == 1 && n == 1)
+                obj.threshold(2) = 0;
+                [m, n] = size(obj.threshold);
+            end
+            
             if(m < 0 || m > 2 || n < 0 || n > 2)
-                ERR_MSG = strcat(ERR_MSG, " It must be a single number or ", ...
-                    "an interval (e.g., [0.1, 0.25]).");
+                ERR_MSG = strcat(ERR_MSG, " It must be a single real", ...
+                    " number or an interval (e.g., [0.1, 0.25]).");
                 error(ERR_MSG);
             end
             
             if(m == 2 && n == 2)
-                ERR_MSG = strcat(ERR_MSG, " It must be a single number or ", ...
-                    "an interval (e.g., [0.1, 0.25]).");
+                ERR_MSG = strcat(ERR_MSG, " It must be a single real", ...
+                    " number or an interval (e.g., [0.1, 0.25]).");
                 error(ERR_MSG);
             end
             
-            if(m == 2 || n == 2)
+            if((m == 2 && n == 1) || (m == 1 && n == 2))
                 % Corridor thresholded version of the recurrence plot
                 obj.threshold = sort(obj.threshold, 'ascend');
             end            
@@ -322,15 +334,16 @@ classdef Recurrence
         %
         
         function plotr(M)
-        %PLOTR Plot recurrence
-        %   Plot the self-distance / cross-distance matrix or the recurrence /
-        %   cross-recurrence plot.
+        %PLOTR Plot recurrence object
+        %   Plots the self-distance / cross-distance matrix or the recurrence /
+        %   cross-recurrence plot. If the object is a recurrence /
+        %   cross-recurrence plot, the image is set to black and white.
         % -------------------------------------------------------------------- %
             imagesc(M)
             
             if(islogical(M))
                 % Set colors to B&W
-                colormap([1, 1, 1; 0, 0, 0])
+                colormap([1, 1, 1; 0.5*rand(1, 3)])
             else
                 colormap('parula')
                 colorbar
@@ -341,8 +354,12 @@ classdef Recurrence
                 axis square
             end
 
-            % Removes labels
-            set(gca, 'XTickLabel', [], 'YTickLabel', [])
+            % Axis
+            [m, n] = size(M);
+            ax = [1, round(m/2), m];
+            ay = [1, round(n/2), n];
+            set(gca, 'XTick', ax, 'XTickLabel', ax)
+            set(gca, 'YTick', ay, 'YTickLabel', ay)
         end % END plotr()
         
     end
