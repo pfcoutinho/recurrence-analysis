@@ -34,38 +34,38 @@ end % END dm()
 function argchk(obj, varargin)
 %ARGCHK Check the arguments of the dm() function
 % ============================================================================ %
-    % Recurrence object
-    if(~isa(obj, 'Recurrence'))
-        ERR_MSG = "First argument must be an object of the class Recurrence.";
-        error(ERR_MSG);
-    end
-    
-    % Data
-    switch nargin
-        case 2
-            chkdata(varargin{1});
-            
-            % Number of state-space vectors
-            N = numel(varargin{1}) - obj.timeDelay ...
-                * (obj.embeddingDimension - 1);
-            if(N < 1)
-                ERR_MSG = "Time series is too short.";
+            % Recurrence object
+            if(~isa(obj, 'Recurrence'))
+                ERR_MSG = "First argument must be an object of the class Recurrence.";
                 error(ERR_MSG);
             end
-        case 3
-            chkdata(varargin{1});
-            chkdata(varargin{2});
-            
-            % Number of state-space vectors for each time series
-            N1 = numel(varargin{1}) - obj.timeDelay ...
-                * (obj.embeddingDimension - 1);
-            N2 = numel(varargin{1}) - obj.timeDelay ...
-                * (obj.embeddingDimension - 1);
-            if(N1 < 1 || N2 < 1)
-                ERR_MSG = "Time series is too short.";
-                error(ERR_MSG);
+
+            % Data
+            switch nargin
+                case 2
+                    chkdata(varargin{1});
+
+                    % Number of state-space vectors
+                    N = numel(varargin{1}) - obj.timeDelay ...
+                        * (obj.embeddingDimension - 1);
+                    if(N < 1)
+                        ERR_MSG = "Time series is too short.";
+                        error(ERR_MSG);
+                    end
+                case 3
+                    chkdata(varargin{1});
+                    chkdata(varargin{2});
+
+                    % Number of state-space vectors for each time series
+                    N1 = numel(varargin{1}) - obj.timeDelay ...
+                        * (obj.embeddingDimension - 1);
+                    N2 = numel(varargin{1}) - obj.timeDelay ...
+                        * (obj.embeddingDimension - 1);
+                    if(N1 < 1 || N2 < 1)
+                        ERR_MSG = "Time series is too short.";
+                        error(ERR_MSG);
+                    end
             end
-    end
 end
 
 function chkdata(data)
@@ -88,8 +88,6 @@ function chkdata(data)
             "using a shorter one (with less than 10,000 samples).");
         error(ERR_MSG);
     end
-    
-    
 end
 
 function D = sdm(obj, varargin)

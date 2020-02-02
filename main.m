@@ -4,8 +4,6 @@
 %
 % The purpose of this file is to demonstrate how to use the following classes:
 %   Recurrence,
-%   DistanceMatrix,
-%   RecurrencePlot, 
 %   RQA, and
 %   RNA.
 %
@@ -57,7 +55,8 @@ data = sin(2*pi*0.05*(1:103)');
 % Distance matrix
 %
 try
-    D = DistanceMatrix(2, 3, 'L2', data);
+    obj = Recurrence(2, 3, 'L2');
+    D   = obj.dm(data);
 catch ERR
     error(ERR.message)
 end
@@ -72,13 +71,14 @@ xlim([1, numel(data)])
 set(gca, "XTick", [1, round(numel(data)/2), numel(data)])
 
 subplot(5, 1, [2, 5])
-D.plotr()   % or plot(D);
+obj.plotr(D)
 
 %
 % Recurrence plot
 %
 try
-    RP = RecurrencePlot(2, 3, 0.2, 'l2', data);
+    obj = Recurrence(2, 3, 0.2, 'L2');
+    RP  = obj.rp(data);
 catch ERR
     error(ERR.message)
 end
@@ -93,7 +93,7 @@ xlim([1, numel(data)])
 set(gca, "XTick", [1, round(numel(data)/(2)), numel(data)]);
 
 subplot(5, 1, [2, 5])
-RP.plotr()   % or plotr(RP);
+obj.plotr(RP)   % or plotr(RP);
 
 %% Stochastic time series
 close all
