@@ -9,17 +9,11 @@ classdef RNA
 % Last update: Jan 31, 2020
 % ============================================================================ %
 
-    properties
+    properties (Abstract = true)
+        M
     end % END properties
     
-    methods
-        %
-        % Class constructor function
-        %
-        function obj = RNA()
-        end % END RNA()
-        
-        
+    methods     
     end % END methods
     
 end

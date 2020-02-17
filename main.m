@@ -49,39 +49,41 @@ clc
 %
 % Time series data
 %
-data = sin(2*pi*0.05*(1:103)');
+
+data = rand(100, 1);
 
 %
 % Distance matrix
 %
-try
-    obj = Recurrence(2, 3, 'L2');
-    D   = obj.dm(data);
-catch ERR
-    error(ERR.message)
-end
 
-figure()
+% try
+%     obj = Recurrence(2, 3, 'L2');
+%     D   = obj.dm(data);
+% catch ERR
+%     error(ERR.message)
+% end
 
-subplot(5, 1, 1)
-plot(data)
-ylabel("x(t)")
-xlabel("t")
-xlim([1, numel(data)])
-set(gca, "XTick", [1, round(numel(data)/2), numel(data)])
+% figure()
 
-subplot(5, 1, [2, 5])
-obj.plotr(D)
+% subplot(5, 1, 1)
+% plot(data)
+% ylabel("x(t)")
+% xlabel("t")
+% xlim([1, numel(data)])
+% set(gca, "XTick", [1, round(numel(data)/2), numel(data)])
+
+% subplot(5, 1, [2, 5])
+% obj.plotr(D)
 
 %
 % Recurrence plot
 %
-try
-    obj = Recurrence(2, 3, 0.2, 'L2');
-    RP  = obj.rp(data);
-catch ERR
-    error(ERR.message)
-end
+
+% try
+    obj = RP(1, 1, 0.2, 'L2', data);
+% catch ERR
+%     error(ERR.message)
+% end
 
 figure()
 
@@ -93,7 +95,7 @@ xlim([1, numel(data)])
 set(gca, "XTick", [1, round(numel(data)/(2)), numel(data)]);
 
 subplot(5, 1, [2, 5])
-obj.plotr(RP)   % or plotr(RP);
+obj.plotr()
 
 %% Stochastic time series
 close all
@@ -109,9 +111,10 @@ data = rand(100, 1);
 % Distance matrix
 %
 try
-    D = DistanceMatrix(1, 1, 'l1', data);
-catch
-
+    obj = Recurrence(1, 1, 'l1');
+    D   = obj.dm(data);
+catch ERR
+    error(ERR.message);
 end
 
 figure()
@@ -124,15 +127,16 @@ xlim([1, 100])
 set(gca, "XTick", [1, 10:10:100])
 
 subplot(5, 1, [2, 5])
-D.plotr()
+obj.plotr(D)
 
 %
 % Recurrence plot
 %
 try
-    RP = RecurrencePlot(1, 1, 0.2, 'l1', data);
-catch
-
+    obj = Recurrence(1, 1, 0.2, 'l1');
+    RP  = obj.rp(data);
+catch ERR
+    error(ERR.message);
 end
 
 figure()
@@ -145,7 +149,7 @@ xlim([1, 100])
 set(gca, "XTick", [1, 10:10:100])
 
 subplot(5, 1, [2, 5])
-RP.plotr()
+obj.plotr(RP)
 
 %% Auto-regressive model
 close all
@@ -165,9 +169,10 @@ end
 % Distance matrix
 %
 try
-    D = DistanceMatrix(1, 1, 'l1', data);
-catch
-
+    obj = Recurrence(1, 1, 'l1');
+    D   = obj.dm(data);
+catch ERR
+    error(ERR.message);
 end
 
 figure()
@@ -180,15 +185,16 @@ xlim([1, 100])
 set(gca, "XTick", [1, 10:10:100])
 
 subplot(5, 1, [2, 5])
-D.plotr()
+obj.plotr(D)
 
 %
 % Recurrence plot
 %
 try
-    RP = RecurrencePlot(1, 1, 0.2, 'l1', data);
-catch
-
+    obj = Recurrence(1, 1, 0.2, 'l1');
+    RP  = obj.rp(data);
+catch ERR
+    error(ERR.message);
 end
 
 figure()
@@ -201,7 +207,7 @@ xlim([1, 100])
 set(gca, "XTick", [1, 10:10:100])
 
 subplot(5, 1, [2, 5])
-RP.plotr()
+obj.plotr(RP)
 
 %% Chaotic
 close all
@@ -211,6 +217,7 @@ clc
 %
 % Time series
 %
+
 data    = zeros(100, 1);
 data(1) = 0.2;
 for i = 2:100
@@ -220,10 +227,12 @@ end
 %
 % Distance matrix
 %
-try
-    D = DistanceMatrix(2, 2, 'L2', data);
-catch
 
+try
+    obj = Recurrence(2, 2, 'L2');
+    D   = obj.dm(data);
+catch ERR
+    error(ERR.message);
 end
 
 figure()
@@ -236,15 +245,17 @@ xlim([1, 100])
 set(gca, "XTick", [1, 10:10:100])
 
 subplot(5, 1, [2, 5])
-D.plotr()
+obj.plotr(D)
 
 %
 % Recurrence plot
 %
-try
-    RP = RecurrencePlot(2, 2, 0.2, 'L2', data);
-catch
 
+try
+    obj = Recurrence(2, 2, 0.2, 'L2');
+    RP  = obj.rp(data);
+catch ERR
+    error(ERR.message);
 end
 
 figure()
@@ -257,7 +268,7 @@ xlim([1, 100])
 set(gca, "XTick", [1, 10:10:100])
 
 subplot(5, 1, [2, 5])
-RP.plotr()
+obj.plotr(RP)
 
 %% Corridor thresholded version of the recurrence plot
 close all
@@ -267,13 +278,16 @@ clc
 %
 % Time series
 %
-data = 0.1*(1:100) + 0.3*randn(1, 100);
+
+data = randn(100, 1);
 
 %
 % Recurrence plot
 %
+
 try
-    RP = RecurrencePlot(1, 1, [0.0, 0.2], 'L-infinity', data);
+    obj = Recurrence(1, 1, [0.0, 0.2], 'L-infinity');
+    RP  = obj.rp(data);
 catch ERR
     error(ERR.message)
 end
@@ -288,7 +302,7 @@ xlim([1, 100])
 set(gca, "XTick", [1, 10:10:100])
 
 subplot(5, 1, [2, 5])
-RP.plotr()
+obj.plotr(RP)
 
 %% Cross-distance matrix and cross-recurrence plot between two time series
 
@@ -299,44 +313,48 @@ clc
 %
 % Time series
 %
+
 data1 = rand(100, 1);
 data2 = rand(150, 1);
 
 %
 % Distance matrix
 %
-try
-    D = DistanceMatrix(2, 3, 'L2', data1, data1);
-catch ERR
-    error(ERR.message)
-end
 
-figure()
+% try
+%     obj = Recurrence(2, 3, 'L2');
+%     D   = obj.dm(data1, data1);
+% catch ERR
+%     error(ERR.message)
+% end
 
-subplot(6, 1, 1)
-plot(data1)
-ylabel("x(t)")
-xlabel("t")
-xlim([1, 100])
-set(gca, "XTick", [1, 10:10:100])
+% figure()
 
-subplot(6, 1, 2)
-plot(data2)
-ylabel("y(t)")
-xlabel("t")
-xlim([1, 150])
-set(gca, "XTick", [1, 10:10:150])
+% subplot(6, 1, 1)
+% plot(data1)
+% ylabel("x(t)")
+% xlabel("t")
+% xlim([1, 100])
+% set(gca, "XTick", [1, 10:10:100])
 
-subplot(6, 1, [3, 6])
-D.plotr()
+% subplot(6, 1, 2)
+% plot(data2)
+% ylabel("y(t)")
+% xlabel("t")
+% xlim([1, 150])
+% set(gca, "XTick", [1, 10:10:150])
 
-set(gcf, 'Position', [400, 140, 560, 530]);
+% subplot(6, 1, [3, 6])
+% obj.plotr(D)
+
+% set(gcf, 'Position', [400, 140, 560, 530]);
 
 %
 % Recurrence plot
 %
+
 try
-    RP = RecurrencePlot(2, 3, 0.2, 'L2', data1, data1);
+    obj = RP(2, 3, 0.2, 'L2', data1, data2);
 catch ERR
     error(ERR.message)
 end
@@ -358,7 +376,7 @@ xlim([1, 150])
 set(gca, "XTick", [1, 10:10:150])
 
 subplot(6, 1, [3, 6])
-RP.plotr()
+obj.plotr(RP)
 
 set(gcf, 'Position', [400, 140, 560, 530]);
 
@@ -371,14 +389,17 @@ clc
 %
 % Time series
 %
+
 data1 = rand(100, 1);
 data2 = rand(150, 1);
 
 %
 % Distance matrix
 %
+
 try
-    D = DistanceMatrix(2, 3, 'L2', data1, data1);
+    obj = Recurrence(2, 3, 'L2');
+    D   = obj.dm(data1, data2);
 catch ERR
     error(ERR.message)
 end
@@ -400,15 +421,17 @@ xlim([1, 150])
 set(gca, "XTick", [1, 10:10:150])
 
 subplot(6, 1, [3, 6])
-D.plotr()
+obj.plotr(D)
 
 set(gcf, 'Position', [400, 140, 560, 530]);
 
 %
 % Recurrence plot
 %
+
 try
-    RP = RecurrencePlot(2, 3, [0.2, 0.3], 'L2', data1, data1);
+    obj = Recurrence(2, 3, [0.2, 0.3], 'L2');
+    RP  = obj.rp(data1, data2);
 catch ERR
     error(ERR.message)
 end
@@ -430,6 +453,6 @@ xlim([1, 150])
 set(gca, "XTick", [1, 10:10:150])
 
 subplot(6, 1, [3, 6])
-RP.plotr()
+obj.plotr(RP)
 
 set(gcf, 'Position', [400, 140, 560, 530]);

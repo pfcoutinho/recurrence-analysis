@@ -1,12 +1,9 @@
-classdef Recurrence < RQA & RNA
-%RECURRENCE Recurrence
-%   This class contains the recurrence parameters that are used to generate the
-%   distance matrix and the recurrence plot, which are the embedding dimension, 
-%   the time delay, the threshold and the norm.
+classdef RP < RQA & RNA
+%RECURRENCE Recurrence class
 %
 % SYNTAX
-%   obj = Recurrence(embeddingDimension, timeDelay, normType);
-%   obj = Recurrence(embeddingDimension, timeDelay, threshold, normType);
+%   obj = RP(embeddingDimension, timeDelay, threshold, normType, data);
+%   obj = RP(embeddingDimension, timeDelay, threshold, normType, data1, data2);
 %
 % PROPERTIES
 %   embeddingDimension
@@ -20,6 +17,10 @@ classdef Recurrence < RQA & RNA
 %
 %   normType
 %       Norm used to compute the distance between state-space vectors
+%
+%   M
+%       The recurrence matrix, which is the recurrence plot or the
+%       cross-recurrence plot
 %
 % METHODS (PUBLIC)
 %   Recurrence()
@@ -38,7 +39,7 @@ classdef Recurrence < RQA & RNA
 %   Patrick Franco Coutinho
 %   pfcoutinho@outlook.com
 %
-% Last update: Feb 2, 2020
+% Last update: Feb 15, 2020
 % ============================================================================ %
 
     properties
@@ -49,156 +50,96 @@ classdef Recurrence < RQA & RNA
         normType            % Norm (L1, L2, L-infinity)
     end % END properties
     
+    properties (Access = private)
+        data                % Data from time series
+    end
+    
+    properties (Dependent = true)
+        M                   % Recurrence matrix
+    end
+    
     methods
         %
-        % Constructor method
+        % Class constructor function
         %
         
-        function obj = Recurrence(varargin)
-            switch nargin
-                case 3  % Distance matrix
-                    obj.embeddingDimension = varargin{1};
-                    obj.timeDelay          = varargin{2};
-                    obj.normType           = varargin{3};
-                case 4  % Recurrence plot
-                    obj.embeddingDimension = varargin{1};
-                    obj.timeDelay          = varargin{2};
-                    obj.threshold          = varargin{3};
-                    obj.normType           = varargin{4};
-                otherwise
-                    ERR_MSG = "Wrong number of input arguments.";
-                    error(ERR_MSG);
-            end
-            
-            % Check recurrence parameters
-            obj = argchk(obj); 
-        end % END Recurrence()
-        
-        %
-        % Distance matrix
-        %
-        
-        function D = dm(obj, varargin)
-            % Check recurrence object
-            if(~isa(obj, 'Recurrence'))
-                ERR_MSG = "First argument must be an object of the class Recurrence.";
+        function obj = RP(varargin)
+        %RECURRENCE Recurrence class constructor
+        % -------------------------------------------------------------------- %
+            if(nargin < 5 || nargin > 6)
+                ERR_MSG = "Wrong number of input arguments.";
                 error(ERR_MSG);
             end
+        
+            % Recurrence parameters
+            obj.embeddingDimension = varargin{1};
+            obj.timeDelay          = varargin{2};
+            obj.threshold          = varargin{3};
+            obj.normType           = varargin{4};
 
-            % Validate data
-            switch nargin
-                case 2
-                    obj.chkdata(varargin{1});
-
-                    % Number of state-space vectors
-                    N = numel(varargin{1}) - obj.timeDelay ...
-                        * (obj.embeddingDimension - 1);
-                    if(N < 1)
-                        ERR_MSG = "Time series is too short.";
-                        error(ERR_MSG);
-                    end
-                case 3
-                    obj.chkdata(varargin{1});
-                    obj.chkdata(varargin{2});
-
-                    % Number of state-space vectors for each time series
-                    N1 = numel(varargin{1}) - obj.timeDelay ...
-                        * (obj.embeddingDimension - 1);
-                    N2 = numel(varargin{1}) - obj.timeDelay ...
-                        * (obj.embeddingDimension - 1);
-                    if(N1 < 1 || N2 < 1)
-                        ERR_MSG = "Time series is too short.";
-                        error(ERR_MSG);
-                    end
-            end
-            
-            % Obtain the self-distance / cross distance matrix
-            switch nargin
-                case 2  % If there's only one time series
-                    D = sdm(obj, varargin{1:end});
-                case 3  % If there are two time series
-                    D = cdm(obj, varargin{1:end});
-            end
-        end % END dm()
+            % Data
+            obj.data = varargin(5:end);
+        end % END Recurrence() 
         
         %
-        % Recurrence plot
+        % Plot
         %
+        
+        function plotr(obj)
+        %PLOTR Plot recurrence object
+        %   Plots the self-distance / cross-distance matrix or the recurrence /
+        %   cross-recurrence plot. If the object is a recurrence /
+        %   cross-recurrence plot, the image is set to black and white.
+        % -------------------------------------------------------------------- %
+            imagesc(obj.M)
+            
+            if(islogical(obj.M))
+                % Set colors to B&W
+                colormap([1, 1, 1; rand(1, 3)])
+            else
+                colormap('parula')
+                colorbar
+            end
 
-        function RP = rp(obj, varargin)
+            [m, n] = size(obj.M);
+            if(m == n)  % symmetric matrix
+                axis square
+            end
+
+            % Axis
+            [m, n] = size(obj.M);
+            ax = [1, round(n/2), n];
+            ay = [1, round(m/2), m];
+            set(gca, 'XTick', ax)
+            set(gca, 'YTick', ay)
+        end % END plotr()
+        
+        %
+        % Recurrence matrix
+        %
+        
+        function M = get.M(obj)
             % Obtain the distance matrix (DM)
-            DM = dm(obj, varargin{1:end});
+            DM = dm(obj);
             
             if(obj.threshold(1) == 0)
-                RP = (DM <= obj.threshold(2));
+                M = (DM <= obj.threshold(2));
             else
-                RP = and(DM >= obj.threshold(1), DM <= obj.threshold(2));
+                M = and(DM >= obj.threshold(1), DM <= obj.threshold(2));
             end
-        end
-                
+        end % END get.M()
+        
         %
-        % Gets and sets
-        % 
-        
-        function obj = setembeddingdimension(newEmbeddingDimension)
-        %SETEMBEDDINGDIMENSION
-        % -------------------------------------------------------------------- %
-            obj.embeddingDimension = newEmbeddingDimension;
-        end % END setembeddingdimension()
-        
-        function obj = settimedelay(obj, newTimeDelay)
-        %SETTIMEDELAY
-        % -------------------------------------------------------------------- %
-            obj.timeDelay = newTimeDelay;
-        end % END settimedelay()
-        
-        function obj = setthreshold(obj, newThreshold)
-        %SETTHRESHOLD
-        %
-        % -------------------------------------------------------------------- %
-            obj = setthreshold@Recurrence(obj, newThreshold);
-        end % END setthreshold()
-        
-        function obj = setnormtype(obj, newNormType)
-        %SETNORMTYPE
-        % -------------------------------------------------------------------- %
-            obj.normType = newNormType;
-        end % END setnormtype()
-        
-    end % END public methods
-    
-    methods (Access = private)
-        %
-        % Checking parameters
+        % Sets
         %
         
-        function obj = argchk(obj)
-        %ARGCHK Check recurrence parameters
-        %   This function validates the embedding dimension, the time delay, the
-        %   threshold, and the norm.
+        function obj = set.embeddingDimension(obj, value)
+        %SET.EMBEDDINGDIMENSION Set the value of the embedding dimension
+        %   Validation: embedding dimension must be a integer greater than or 
+        %   equal to 1.
         % -------------------------------------------------------------------- %
-            if(~isempty(obj.embeddingDimension))
-                obj = checkembeddingdimension(obj);
-            end
+            obj.embeddingDimension = value;
             
-            if(~isempty(obj.timeDelay))
-                obj = checktimedelay(obj);
-            end
-            
-            if(~isempty(obj.threshold))
-                obj = checkthreshold(obj);
-            end
-            
-            if(~isempty(obj.normType))
-                obj = checknorm(obj);
-            end
-        end % END checkparameters()
-        
-        function obj = checkembeddingdimension(obj)
-        %CHECKEMBEDDINGDIMENSION
-        %   This function validates the embedding dimension. The value must be a
-        %   positive integer number greater than or equal to 1.
-        % -------------------------------------------------------------------- %
             ERR_MSG = "Invalid parameter: embedding dimension.";
         
             if(isempty(obj.embeddingDimension))
@@ -222,29 +163,25 @@ classdef Recurrence < RQA & RNA
             
             % Embedding dimension < 1?
             if(obj.embeddingDimension < 1)
-                ERR_MSG = strcat(ERR_MSG, " It must be a positive integer", ...
+                ERR_MSG = strcat(ERR_MSG, " It must be an integer", ...
                     " number greater than or equal to 1.");
                 error(ERR_MSG);
             end
             
             % Integer?
             if(mod(obj.embeddingDimension, 1) ~= 0)
-                ERR_MSG = strcat(ERR_MSG, " It must be a positive integer", ...
-                    " number.");
+                ERR_MSG = strcat(ERR_MSG, " It must be an integer number");
                 error(ERR_MSG);
             end
-        end % END checkembeddingdimension()
+        end % END set.embeddingDimension()
         
-        function obj = checktimedelay(obj)
-        %CHECKTIMEDELAY Check time delay
-        %   This function validates the time delay, which is integer number
-        %   greater than or equal to 0. If the embedding dimension is equal to
-        %   1, then the value of the time delay doesn't matter (in this case, we
-        %   set time delay to 0).
-        %
-        %   User can input the time delay value as a number (e.g., 2), as string
-        %   (e.g., "2"), or as a char (e.g., '2').
+        function obj = set.timeDelay(obj, value)
+        %SET.TIMEDELAY Set the value of the time delay
+        %   Validation: the value of the time delay must be greater than or
+        %   equal to 1.
         % -------------------------------------------------------------------- %
+            obj.timeDelay = value;
+            
             ERR_MSG = "Invalid parameter: time delay.";
             
             if(isempty(obj.timeDelay))
@@ -265,8 +202,8 @@ classdef Recurrence < RQA & RNA
             
             if(isnumeric(obj.timeDelay))
                 % Negative number?
-                if(obj.timeDelay < 0)
-                    ERR_MSG = strcat(ERR_MSG, " Value must be positive.");
+                if(obj.timeDelay < 1)
+                    ERR_MSG = strcat(ERR_MSG, " Value must be greater than 1.");
                     error(ERR_MSG);
                 end
                 
@@ -283,7 +220,8 @@ classdef Recurrence < RQA & RNA
                     error(ERR_MSG);
                 end
             end
-            
+
+            %{
             if(obj.embeddingDimension == 1 && obj.timeDelay ~= 0)
                 obj.timeDelay = 0;
             end
@@ -293,12 +231,17 @@ classdef Recurrence < RQA & RNA
                     " or equal to 1.");
                 error(ERR_MSG);
             end
-        end % END checktimedelay()
+            %}
+        end % END set.timeDelay()
         
-        function obj = checkthreshold(obj)
-        %CHECKTHRESHOLD Check the threshold parameter
-        %   
+        function obj = set.threshold(obj, newThreshold)
+        %SET.THRESHOLD Set the value of the threshold
+        %   Validation: threshold can be any real number greater than or equal 
+        %   to 0. Input can be of the form of a single real positive number
+        %   (e.g., 0.5) or an interval (e.g., [0.1, 0.25]).
         % -------------------------------------------------------------------- %
+            obj.threshold = newThreshold;
+        
             ERR_MSG = "Invalid parameter: threshold.";
             
             if(isempty(obj.threshold))
@@ -335,21 +278,32 @@ classdef Recurrence < RQA & RNA
             if((m == 2 && n == 1) || (m == 1 && n == 2))
                 % Corridor thresholded version of the recurrence plot
                 obj.threshold = sort(obj.threshold, 'ascend');
-            end            
-        end % END validatethreshold()
+            end
+            
+            if(obj.threshold(1) < 0 || obj.threshold(2) < 0)
+                ERR_MSG = strcat(ERR_MSG, " Value cannot be negative.");
+                error(ERR_MSG);
+            end
+        end % END set.threshold()
         
-        function obj = checknorm(obj)
-        %CHECKNORM Check the norm used to calculate the distance between
-        %state-space vectors
-        %   This function validates the norm. It must be choosen among L1
-        %   (a.k.a. taxicab norm), L2 (a.k.a. Euclidean norm), and L-infinity
-        %   (a.k.a. maximum norm).
-        %   
-        %   User can use these norms as follows:
+        function obj = set.normType(obj, newNormType)
+        %SET.NORMTYPE Set the norm
+        %   Validation: only the norms L1, L2 and L-infinity are accepted. User 
+        %   can use these norms as follows:
         %       * as strings: "L1", "L2", and "L3";
         %       * as chars: 'L1', 'L2', and 'L3';
         %       * as numbers: 1, 2, and 3 (respectively to L1, L2, and L3).
+        %   Norms are standardized. So, if the user gives "l1", the norm is
+        %   changed to 'L1'; in the same way, if the user gives 1, then the norm
+        %   is changed to 'L1'.
+        %   For L1, user can write: 1, 'l1', 'L1', 'taxicab', "l1", "L1", and
+        %   "taxicab"; for L2: 2, 'l2', 'L2', 'euclidean', 'Euclidean', "l2",
+        %   "L2", "euclidean", "Euclidean"; for L-infinity: 3, 'l-inf',
+        %   'l-infinity', 'L-inf', 'L-infinity', "l-inf", "l-infinity", "L-inf",
+        %   "l-infinity", "
         % -------------------------------------------------------------------- %
+            obj.normType = newNormType;
+            
             ERR_MSG = "Invalid parameter: norm.";
             
             if(isstring(obj.normType))
@@ -383,7 +337,8 @@ classdef Recurrence < RQA & RNA
             
             VALID_NORMS = {'L1','l1', 'taxicab', ...
                 'L2', 'l2', 'euclidean', 'Euclidean', ...
-                'L-infinity', 'l-infinity', 'Linf', 'linf', 'Chebychev'};
+                'l-inf', 'L-inf', 'L-infinity', 'l-infinity', 'Linf', 'linf', ...
+                'Chebychev'};
             if(~ismember(obj.normType, VALID_NORMS))
                 ERR_MSG = strcat(ERR_MSG, " Choose among L1, L2, and ", ...
                     "L-infinity.");
@@ -396,24 +351,100 @@ classdef Recurrence < RQA & RNA
                     obj.normType = 'L1';
                 case {'l2', 'euclidean', 'Euclidean'}
                     obj.normType = 'L2';
-                case {'l-infinity', 'Linf', 'linf', 'Chebychev'}
+                case {'l-infinity', 'L-infinity', 'l-inf', 'L-inf', ...
+                        'linf', 'Linf', 'Chebychev'}
                     obj.normType = 'L-infinity';
             end
-        end % END checknorm()
+        end % END set.normType()
         
-        function D = sdm(obj, varargin)
+        function obj = set.data(obj, newData)
+            obj.data = newData;
+        end % END set.data()
+        
+    end % END public methods
+    
+    methods (Access = private)
+        %
+        % Check data
+        %
+        
+        function chkdata(obj)
+        %CHKDATA Check data from time series
+        % -------------------------------------------------------------------- %
+            if(isempty(obj.data))
+                ERR_MSG = "Data from the time series cannot be empty.";
+                error(ERR_MSG);
+            end
+            
+            [~, n] = size(obj.data);
+            
+            if(n == 1)
+                % One time series
+                RP.chkdatavector(obj.data{1});
+            elseif(n == 2)
+                % Two times series
+                RP.chkdatavector(obj.data{1});
+                RP.chkdatavector(obj.data{2});
+            else
+                ERR_MSG = "Too many time series.";
+                error(ERR_MSG);
+            end
+            
+        end % END chkdata()
+        
+        %
+        % Distance matrix
+        %
+        
+        function D = dm(obj)
+        %DM Distance matrix
+        % -------------------------------------------------------------------- %
+            
+        
+            [~, n] = size(obj.data);
+            
+            switch n
+                case 1
+                    % Number of state-space vectors
+                    N = numel(obj.data{1}) - obj.timeDelay ...
+                        * (obj.embeddingDimension - 1);
+                    if(N < 1)
+                        ERR_MSG = "Time series is too short.";
+                        error(ERR_MSG);
+                    end
+                case 2
+                    % Number of state-space vectors for each time series
+                    N1 = numel(obj.data{1}) - obj.timeDelay ...
+                        * (obj.embeddingDimension - 1);
+                    N2 = numel(obj.data{2}) - obj.timeDelay ...
+                        * (obj.embeddingDimension - 1);
+                    if(N1 < 1 || N2 < 1)
+                        ERR_MSG = "Time series is too short.";
+                        error(ERR_MSG);
+                    end
+            end
+            
+            % Obtain the self-distance / cross distance matrix
+            switch n
+                case 1  % If there's only one time series
+                    D = sdm(obj);
+                case 2  % If there are two time series
+                    D = cdm(obj);
+            end
+        end % END dm()
+        
+        function D = sdm(obj)
         %SDM Self-distance matrix
         % -------------------------------------------------------------------- %
-            timeSeries = varargin{1};
-
             % Number of state-space vectors
-            N = numel(timeSeries) - obj.timeDelay*(obj.embeddingDimension - 1);
+            N = numel(obj.data{1}) ...
+                - obj.timeDelay*(obj.embeddingDimension - 1);
 
             % State-space vectors (each row of X is a state-space
             % vector)
             X = zeros(N, obj.embeddingDimension);
             for i = 1:obj.embeddingDimension
-                X(1:end, i) = timeSeries((1:N) + obj.timeDelay*(i - 1));
+                X(1:end, i) = obj.data{1}((1:N) + obj.timeDelay*(i - 1));
             end
 
             % Replicate state-space vectors
@@ -434,22 +465,21 @@ classdef Recurrence < RQA & RNA
             D = reshape(D, N, N);
         end % END sdm()
 
-        function D = cdm(obj, varargin)
+        function D = cdm(obj)
         %CDM Cross-distance matrix
         % -------------------------------------------------------------------- %
-            timeSeries1 = varargin{1};
-            timeSeries2 = varargin{2};
-
             % Number of state-space vectors for each time series
-            N1 = numel(timeSeries1) - obj.timeDelay*(obj.embeddingDimension - 1);
-            N2 = numel(timeSeries2) - obj.timeDelay*(obj.embeddingDimension - 1);
+            N1 = numel(obj.data{1}) ...
+                - obj.timeDelay*(obj.embeddingDimension - 1);
+            N2 = numel(obj.data{2}) ...
+                - obj.timeDelay*(obj.embeddingDimension - 1);
 
             % State-space vectors (each row of X and Y is a state-space vector)
             X = zeros(N1, obj.embeddingDimension);
             Y = zeros(N2, obj.embeddingDimension);
             for i = 1:obj.embeddingDimension
-                X(1:end, i) = timeSeries1((1:N1) + obj.timeDelay*(i - 1));
-                Y(1:end, i) = timeSeries2((1:N2) + obj.timeDelay*(i - 1));
+                X(1:end, i) = obj.data{1}((1:N1) + obj.timeDelay*(i - 1));
+                Y(1:end, i) = obj.data{2}((1:N2) + obj.timeDelay*(i - 1));
             end
 
             % Replicate state-space vectors
@@ -472,65 +502,40 @@ classdef Recurrence < RQA & RNA
         
     end % END private methods
     
-    methods (Static = true)
+    methods (Access = private, Static = true)
         %
-        % Plot
+        % Check data
         %
         
-        function plotr(M)
-        %PLOTR Plot recurrence object
-        %   Plots the self-distance / cross-distance matrix or the recurrence /
-        %   cross-recurrence plot. If the object is a recurrence /
-        %   cross-recurrence plot, the image is set to black and white.
-        % -------------------------------------------------------------------- %
-            imagesc(M)
-            
-            if(islogical(M))
-                % Set colors to B&W
-                colormap([1, 1, 1; rand(1, 3)])
-            else
-                colormap('parula')
-                colorbar
-            end
-
-            [m, n] = size(M);
-            if(m == n)  % symmetric matrix
-                axis square
-            end
-
-            % Axis
-            [m, n] = size(M);
-            ax = [1, round(m/2), m];
-            ay = [1, round(n/2), n];
-            set(gca, 'XTick', ax, 'XTickLabel', ax)
-            set(gca, 'YTick', ay, 'YTickLabel', ay)
-        end % END plotr()
-    end % END static methods
-    
-    methods (Access = private, Static = true)
-        function chkdata(data)
-        %CHKDATA Check data from time series
-        %
-        % -------------------------------------------------------------------- %
+        function chkdatavector(data)
+            % Is empty?
             if(isempty(data))
                 ERR_MSG = "Data from the time series cannot be empty.";
                 error(ERR_MSG);
             end
-
+            
+            % Is numeric?
             if(~isnumeric(data))
                 ERR_MSG = "Time series must be numeric.";
                 error(ERR_MSG);
             end
+            
+            % Is logical?
+            if(islogical(data))
+                ERR_MSG = "Time series cannot be logical.";
+                error(ERR_MSG);
+            end
 
+            % Is too large?
             [m, n] = size(data);
-            if(m > 1e4 || n > 1e4)
+            if(m > 10000 || n > 10000)
                 ERR_MSG = strcat("Time series has too many samples. ", ...
                     "Consider using a shorter one (with less than 10,000", ...
                     " samples).");
                 error(ERR_MSG);
             end
-        end % END chkdata()
+        end % END chkdatavector()
         
     end % END private, static methods
-    
+        
 end

@@ -1,5 +1,5 @@
 classdef RQA
-%RQA Recurrence quantification analysis
+%RQA Recurrence Quantification Analysis
 %   This class performs recurrence quantification analysis (RQA) of recurrence 
 %   plots, which are binary matrices (i.e., A(i, j) = {0, 1}).
 %
@@ -7,18 +7,20 @@ classdef RQA
 %   Patrick Franco Coutinho
 %   pfcoutinho@outlook.com
 %
-% Last update: Jan 28, 2020
+% Last update: Feb 15, 2020
 % ============================================================================ %
-    
-    properties
-        dHist   % Histogram of diagonal lines
-        vHist   % Histogram of vertical lines
+    properties (Abstract = true)
+        M                   % Recurrence matrix
     end
-    
+
     properties (Dependent)
         % Based on the density of recurrence points
         RR                  % Recurrence rate
         
+        % Histograms
+        HDL                 % Histogram of diagonal lines
+        HVL                 % Histogram of vertical lines
+
         % Based on diagonal lines
         DET                 % Determinism
         LMAX                % Maximum diagonal line length
@@ -40,18 +42,26 @@ classdef RQA
     end
     
     methods
-        %
-        % Class constructor function
-        %
-        
-        function obj = RecurrenceAnalysis()
-            obj.dHist = hod(RP);
-            obj.vHist = hov(RP);
+        function value = get.HDL(obj)
+            value = RQA.hod(obj.M);
         end
         
-    end % END methods
+        function value = get.HVL(obj)
+            value = RQA.hov(obj.M);
+        end
+        
+        function value = get.RR(obj)
+            [m, n] = size(obj.M);
+            % Discard the LOI?
+            if(m == n && sum(diag(obj.M)) == m)
+                value = (nnz(obj.M) - m)/(m*n);
+            else
+                value = nnz(obj.M)/(m*n);
+            end
+        end
+    end
     
-    methods (Static)
+    methods (Static = true, Access = private)
         %
         % Histograms
         %
@@ -69,7 +79,7 @@ classdef RQA
                 idx          = (lineLengths > 0);
                 H(lineLengths(idx)) = H(lineLengths(idx)) + 1;
             end
-        end
+        end % END hod()
         
         function H = hov(RP)
         %HOD Histogram of vertical lines
@@ -79,54 +89,36 @@ classdef RQA
             H = zeros(max(m, n), 1);
             
             for i = 1:m
-                verticalLine = [0; find(~RP(i, 1:end)); ...
-                    numel(RP(i, 1:end)) + 1];
+                verticalLine = [0; find(~RP(1:end, i)); numel(RP(1:end, i)) + 1];
                 lineLengths  = diff(verticalLine) - 1;
                 idx          = (lineLengths > 0);
-                H(lengths(idx)) = H(lineLengths(idx)) + 1;
+                H(lineLengths(idx)) = H(lineLengths(idx)) + 1;
             end
-        end
+        end % END hov()
+        
         %
-        % Recurrence metrics
+        % 
         %
         
-        % Recurrence rate (RR)
-        function RR = recurrencerate(RP)
-        %RECURRENCERATE Recurrence rate
-        % -------------------------------------------------------------------- %
-            [m, n] = size(RP);
-            % Discard the LOI?
-            if(m == n && sum(diag(RP)) == m)
-                RR = (nnz(RP) - m)/(m*n);
-            else
-                RR = nnz(RP)/(m*n);
-            end
-        end
+%         function value = calcdet(RP, minimumLineLength)
+%         end
         
-        % Determinism (DET)
-        function determinism()
-            
-        end
+%         function value = calcentd(RP, minimumLineLength)
+%         end
         
-        function getdeterminism()
-        end
+        %
+        %
+        %
         
-        % Entropy (ENT)
-        function entropyd()
-        end
+%         function value = calcentv(RP, minimmLineLength)
+%         end
         
-        function getentropyd()
-        end
-        
-        function entropyv()
-        end
-        
-        function getentropyv()
-        end
-        
+        %
         % Adaptive threshold
-        function adaptivethreshold(rate)
-            
-        end
+        %
+        
+%         function adaptivethreshold(data, rate)
+%             
+%         end
     end
 end
