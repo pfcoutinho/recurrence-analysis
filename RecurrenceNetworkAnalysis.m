@@ -1,4 +1,4 @@
-classdef RNA
+classdef RecurrenceNetworkAnalysis
 %RNA Recurrence Network Analysis
 %
 %
@@ -6,14 +6,15 @@ classdef RNA
 %   Patrick Franco Coutinho
 %   pfcoutinho@outlook.com
 %
-% Last update: Jan 31, 2020
+% Last update: Mar 04, 2020
 % ============================================================================ %
 
     properties (Abstract = true)
-        M
-    end % END properties
-    
-    methods     
+        M               % Recurrence matrix
+    end
+
+    methods
+        
     end % END methods
     
 end
