@@ -33,6 +33,7 @@ classdef DistanceMatrix < handle
         timeDelay                   % time delay
         normType                    % norm (L1, L2, or L-infinity)
         data                        % data from time series
+        
         M = []                      % distance matrix
     end
     
@@ -256,24 +257,23 @@ classdef DistanceMatrix < handle
             %CALCDISTANCES
             % ---------------------------------------------------------------- %
                 switch self.normType
-                    case {'L1', 'l1', 'l-1 norm', 'taxicab'}
+                    case 'l-1 norm'
                         D = sum(abs(X - Y), 2);
-                    case {'L2', 'l2', 'l-2 norm', 'Euclidean', 'euclidean'}
+                    case 'l-2 norm'
                         D = sqrt(sum((X - Y).^2, 2));
-                    case {'L-infinity', 'l-infinity', 'l-infinity norm', 'L-inf', 'l-inf', ...
-                            'Maximum', 'maximum'}
+                    case 'l-infinity norm'
                         D = max(abs(X - Y), [], 2);
                 end
             end %END calcdistances()
         end % END dm()
         
 
-        function self = evthandle(obj, ~)
+        function self = evthandle(self, ~)
         %EVTHANDLE Function to handle the change of a parameter value
         %   It calculates the distance matrix again.
         % -------------------------------------------------------------------- %
-            if(~isempty(obj.M))
-                self.M = dm(obj);
+            if(~isempty(self.M))
+                self.M = dm(self);
             end
         end % END evthandle()
         
