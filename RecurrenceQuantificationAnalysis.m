@@ -78,6 +78,7 @@ classdef RecurrenceQuantificationAnalysis < handle
             value = self.diagonalLinesHistogram;
         end % END DHIST()
         
+        
         function value = VHIST(self)
         %VHIST Histogram of vertical lines
         % -------------------------------------------------------------------- %

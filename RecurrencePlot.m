@@ -1,36 +1,23 @@
-classdef RecurrencePlot < DistanceMatrix & RecurrenceQuantificationAnalysis ...
-        & handle
-%RecurrencePlot Recurrence Plot class
+classdef RecurrencePlot < DistanceMatrix & handle
+%RECURRENCEPLOT Recurrence Plot
+%   
+%
+% DEPENDECIES
+%   DistanceMatrix.m
 %
 % SYNTAX
-%   obj = RP(embeddingDimension, timeDelay, threshold, normType, data);
-%   obj = RP(embeddingDimension, timeDelay, threshold, normType, data1, data2);
+%   obj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, ...
+%           data);
+%   obj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, ...
+%           data1, data2);
 %
-% PROPERTIES
+% INPUT
 %   embeddingDimension
-%       Embedding dimension (positive integer greater than or equal to 1)
-%
 %   timeDelay
-%       Time delay (positive integer greater than or equal to 1)
-%
 %   threshold
-%       Threshold (non-negative real number or interval)
-%
 %   normType
-%       Norm used to compute the distance between state-space vectors
 %
-%   M
-%       The recurrence matrix, which is the recurrence plot or the
-%       cross-recurrence plot
-%
-% METHODS
-%   RP()
-%       Class constructor function
-%
-%   plot()
-%       Plot recurrence matrix
-%
-% CONTACT
+% AUTHOR
 %   Patrick Franco Coutinho
 %   pfcoutinho@outlook.com
 %
@@ -49,26 +36,22 @@ classdef RecurrencePlot < DistanceMatrix & RecurrenceQuantificationAnalysis ...
     % Methods
     %
     methods
-        %
-        % Class constructor
-        %
+
         function self = RecurrencePlot(embeddingDimension, timeDelay, ...
                             threshold, normType, varargin)
         %RECURRENCEPLOT recurrence plot
         % -------------------------------------------------------------------- %
-             self = self@DistanceMatrix(embeddingDimension, timeDelay, ...
+            self = self@DistanceMatrix(embeddingDimension, timeDelay, ...
                         normType, varargin{1:end});
             
             % Recurrence parameters
-            self.threshold          = threshold;
+            self.threshold = threshold;
                         
             % Recurrence matrix
-            self.M                  = rp(self);
+            self.M = rp(self);
         end % END RecurrencePlot() 
         
-        %
-        % Plot
-        %
+
         function plot(self, varargin)
         %PLOT Plot recurrence plot
         %   Plot the recurrence or cross-recurrence plot
@@ -96,9 +79,7 @@ classdef RecurrencePlot < DistanceMatrix & RecurrenceQuantificationAnalysis ...
             set(gca, 'YTick', ay)
         end % END plot()
         
-        %
-        % Sets
-        %
+
         function set.threshold(self, value)
         %SET.THRESHOLD Set the value of the threshold
         %   Validation: threshold can be any real number greater than or equal 
@@ -141,21 +122,22 @@ classdef RecurrencePlot < DistanceMatrix & RecurrenceQuantificationAnalysis ...
         
     end % END public methods
     
+    
     methods (Access = protected)
-        %
-        % Event handle
-        %
+        
         function obj = evthandle(obj, ~)
+        % -------------------------------------------------------------------- %
             obj = evthandle@DistanceMatrix(obj);
             obj.M = rp(obj);
         end
+        
     end % END protected methods
     
+    
     methods (Access = private)
-        %
-        % Recurrence matrix
-        %
+        
         function M = rp(self)
+        % -------------------------------------------------------------------- %
             [m, n] = size(self.threshold);
             
             if(m == 1 && n == 1)
