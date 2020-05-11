@@ -42,7 +42,7 @@ catch ERR
 end
 
 % Plot the distance matrix
-figure()
+figure(1)
 
 subplot(5, 1, 1)
 plot(data)
@@ -58,7 +58,7 @@ dm.plot()
 dm.embeddingDimension = 3;
 
 % Plot the distance matrix
-figure()
+figure(2)
 subplot(5, 1, 1)
 plot(data)
 ylabel("x(t)")
@@ -73,7 +73,7 @@ dm.plot()
 dm.normType = 'l2';
 
 % Plot the distance matrix
-figure()
+figure(3)
 subplot(5, 1, 1)
 plot(data)
 ylabel("x(t)")
@@ -114,7 +114,7 @@ catch ERR
 end
 
 % Plot the recurrence matrix
-figure()
+figure(1)
 
 subplot(5, 1, 1)
 plot(data)
@@ -130,7 +130,7 @@ rp.plot('color')
 rp.threshold = 0.3;
 
 % Plot the recurrence matrix
-figure()
+figure(2)
 
 subplot(5, 1, 1)
 plot(data)
@@ -144,10 +144,10 @@ rp.plot('color')
 
 % Setting a new time series
 newData = rand(40, 1);
-rp.timeSeries = newData;
+rp.data = newData;
 
 % Plot the recurrence matrix
-figure()
+figure(3)
 
 subplot(5, 1, 1)
 plot(newData)
@@ -191,7 +191,7 @@ end
 %
 % Plotting the recurrence matrix
 %
-figure()
+figure(1)
 
 subplot(5, 1, 1)
 plot(data)
@@ -287,7 +287,7 @@ end
 %
 % Plotting the recurrence matrix
 %
-figure()
+figure(1)
 
 subplot(5, 1, 1)
 plot(data)
@@ -331,7 +331,7 @@ end
 %
 % Plotting the recurrence matrix
 %
-figure()
+figure(1)
 
 subplot(5, 1, 1)
 plot(data)
@@ -378,7 +378,7 @@ end
 %
 % Plotting the recurrence matrix
 %
-figure()
+figure(1)
 
 subplot(6, 1, 1)
 plot(data1)

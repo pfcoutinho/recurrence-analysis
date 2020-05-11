@@ -125,10 +125,10 @@ classdef RecurrencePlot < DistanceMatrix & handle
     
     methods (Access = protected)
         
-        function obj = evthandle(obj, ~)
+        function self = evthandle(self, ~)
         % -------------------------------------------------------------------- %
-            obj = evthandle@DistanceMatrix(obj);
-            obj.M = rp(obj);
+            self = evthandle@DistanceMatrix(self);
+            self.M = rp(self);
         end
         
     end % END protected methods
