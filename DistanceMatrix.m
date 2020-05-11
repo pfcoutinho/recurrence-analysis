@@ -170,7 +170,7 @@ classdef DistanceMatrix < handle
         %       * non-empty
         %       * numeric
         % -------------------------------------------------------------------- %
-            self.chkdata(data);
+            data = self.chkdata(data);
             
             % set data and notify listeners if value changes
             if(isempty(self.data) || ~isequal(self.data, data))
