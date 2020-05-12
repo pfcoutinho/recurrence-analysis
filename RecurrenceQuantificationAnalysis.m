@@ -1,5 +1,5 @@
-classdef RecurrenceQuantificationAnalysis < handle
-%RQA Recurrence Quantification Analysis
+classdef RecurrenceQuantificationAnalysis
+%RECURRENCEQUANTIFICATIONANALYSIS Recurrence Quantification Analysis class
 %   This class performs recurrence quantification analysis (RQA) of recurrence 
 %   plots, which are binary matrices (i.e., A(i, j) = {0, 1}).
 %
@@ -30,42 +30,87 @@ classdef RecurrenceQuantificationAnalysis < handle
 %         ZIPV          ZIP compression of vertical lines
 %         TIFF          TIFF image compression
 %
-% CONTACT
+% AUTHOR
 %   Patrick Franco Coutinho
 %   pfcoutinho@outlook.com
 %
-% Last update: Mar 10, 2020
+% SEE ALSO
+%
+% Last update: May 12, 2020
 % ============================================================================ %
     %
     % Properties
     %
     properties
         % Histograms
-        diagonalLinesHistogram  % Histogram of diagonal lines
-        verticalLinesHistogram  % Histogram of vertical lines
-    end
-    
-    properties (Abstract = true)
-        M                       % Recurrence matrix
-        timeSeries              % Time series
+%         diagonalLinesHistogram  % Histogram of diagonal lines
+%         verticalLinesHistogram  % Histogram of vertical lines
     end
     
     %
     % Events
     %
-    events
-        callHistCalc
-    end
+%     events
+%         callHistCalc
+%     end
     
     %
     % Methods
     %
     methods
+        
         function self = RecurrenceQuantificationAnalysis()
             % 
-            addlistener(self, 'callHistCalc', @self.histevthandle);
+            % addlistener(self, 'callHistCalc', @self.histevthandle);
+        end %END RecurrenceQuantificationAnalysis()
+        
+        
+        function [threshold, recurrenceRate] = adaptivethreshold(self, RPobj, ...
+                targetRecurrenceRate)
+        %ADAPTIVETHRESHOLD Adaptive threshold
+        %   It uses binary search to find the threshold that gives the desired
+        %   recurrence rate.
+        % -------------------------------------------------------------------- %
+            [~, n] = size(RPobj.data);
+            
+            minThreshold = 0;
+            values = [0, 0];
+            for i = 1:n
+                values(i) = max(RPobj.data{i});
+            end
+            maxThreshold = max(values);
+
+            newThreshold = (minThreshold + maxThreshold)/2;
+            while true
+                RPobj.threshold = newThreshold;
+                recurrenceRate  = self.rr(RPobj.RP);
+                
+                if abs(recurrenceRate - targetRecurrenceRate) < 1e-6 || ...
+                        abs(maxThreshold - minThreshold) < 1e-12
+                    break;
+                elseif recurrenceRate > targetRecurrenceRate
+                    maxThreshold = newThreshold;
+                    newThreshold = (minThreshold + maxThreshold)/2;
+                elseif recurrenceRate < targetRecurrenceRate
+                    minThreshold = newThreshold;
+                    newThreshold = (minThreshold + maxThreshold)/2;
+                end
+            end
+            
+            threshold = newThreshold;
         end
         
+    end %END private methods
+    
+    methods (Static = true)
+        
+        
+        
+    end
+        
+    methods (Access = protected, Static = true)
+
+        %{
         %
         % Histograms
         %
@@ -85,20 +130,18 @@ classdef RecurrenceQuantificationAnalysis < handle
             value = self.verticalLinesHistogram;
         end % END VHIST()
         
+        %}
         %
         % Measures based on the density of recurrence points
         %
-        function value = RR(obj)
+        function recurrenceRate = rr(RP)
         %RR Recurrence Rate
-        % -------------------------------------------------------------------- %
-            if(isempty(obj.M))
-                error("Cannot calculate the recurrence rate (RR).")
-            end
+        % -------------------------------------------------------------------- %        
+            [m, n] = size(RP);
+            recurrenceRate = nnz(RP)/(m*n);
+        end % END rr()
         
-            [m, n] = size(obj.M);
-            value = nnz(obj.M)/(m*n);
-        end % END RR()
-        
+        %{
         function value = AVGN(obj)
         %AVGN Average number of neighbors
         % -------------------------------------------------------------------- %
@@ -186,21 +229,11 @@ classdef RecurrenceQuantificationAnalysis < handle
             
             value = -sum(p.*log(p));
         end
-        
-        %
-        % Adaptive threshold
-        %
-        %{
-        function [threshold] = adptthreshold(data, rate)
-            
-        end
         %}
-    end
+        
+    end %END protected methods
     
-    methods (Static = true)
-
-    end
-    
+    %{
     methods (Access = private)
         function self = histevthandle(self, ~, ~)
             self = chkhist(self, 'diagonal');
@@ -267,6 +300,7 @@ classdef RecurrenceQuantificationAnalysis < handle
                 H(lineLengths(idx)) = H(lineLengths(idx)) + 1;
             end
         end % END hov()
-    end
-    
+        
+    end %END private methods
+    %}
 end
