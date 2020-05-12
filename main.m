@@ -8,11 +8,11 @@
 %   RecurrenceQuantificationAnalysis, and
 %   RecurrenceNetworkAnalysis.
 %
-% CONTACT
+% AUTHOR
 %   Patrick Franco Coutinho
 %   pfcoutinho@outlook.com
 %
-% Last update: Mar 10, 2020
+% Last update: May 11, 2020
 %% Example #1
 % Distance matrix of a stochastic process (drawn from the uniform distribution)
 
@@ -108,7 +108,7 @@ normType           = 'L1';
 % Recurrence plot
 %
 try
-    rp = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, data);
+    RPobj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, data);
 catch ERR
     error(ERR.message)
 end
@@ -124,10 +124,12 @@ xlim([1, numel(data)])
 set(gca, "XTick", [1, round(numel(data)/(2)), numel(data)]);
 
 subplot(5, 1, [2, 5])
-rp.plot('color')
+RPobj.plot('color')
 
-% Setting a new threshold
-rp.threshold = 0.3;
+%
+% setting a new threshold
+%
+RPobj.threshold = 0.3;
 
 % Plot the recurrence matrix
 figure(2)
@@ -140,11 +142,13 @@ xlim([1, numel(data)])
 set(gca, "XTick", [1, round(numel(data)/(2)), numel(data)]);
 
 subplot(5, 1, [2, 5])
-rp.plot('color')
+RPobj.plot('color')
 
-% Setting a new time series
+%
+% setting a new time series
+%
 newData = rand(40, 1);
-rp.data = newData;
+RPobj.data = newData;
 
 % Plot the recurrence matrix
 figure(3)
@@ -157,7 +161,25 @@ xlim([1, numel(newData)])
 set(gca, "XTick", [1, round(numel(newData)/(2)), numel(newData)]);
 
 subplot(5, 1, [2, 5])
-rp.plot('color')
+RPobj.plot()
+
+%
+% setting a new embedding dimension
+%
+RPobj.embeddingDimension = 2;
+
+% Plot the recurrence matrix
+figure(4)
+
+subplot(5, 1, 1)
+plot(newData)
+ylabel("x(t)")
+xlabel("t")
+xlim([1, numel(newData)])
+set(gca, "XTick", [1, round(numel(newData)/(2)), numel(newData)]);
+
+subplot(5, 1, [2, 5])
+RPobj.plot()
 
 %% Example #3
 % Periodic time series (sinusoidal signal)
@@ -183,7 +205,7 @@ normType           = 'L2';
 % Recurrence plot
 %
 try
-    rp = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, data);
+    RPobj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, data);
 catch ERR
     error(ERR.message)
 end
@@ -201,7 +223,7 @@ xlim([1, 100])
 set(gca, "XTick", [1, 10:10:100])
 
 subplot(5, 1, [2, 5])
-rp.plot()
+RPobj.plot()
 
 %% Example #4
 % Auto-regressive model
@@ -231,7 +253,7 @@ normType           = 'L2';
 % Recurrence plot
 %
 try
-    rp = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, data);
+    RPobj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, data);
 catch ERR
     error(ERR.message)
 end
@@ -249,7 +271,7 @@ xlim([1, 100])
 set(gca, "XTick", [1, 10:10:100])
 
 subplot(5, 1, [2, 5])
-rp.plot('color')
+RPobj.plot('color')
 
 %% Example #5
 % Chaotic time series (logistic map)
@@ -279,7 +301,7 @@ normType           = 'L-infinity';
 % Recurrence plot
 %
 try
-    rp = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, data);
+    RPobj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, data);
 catch ERR
     error(ERR.message)
 end
@@ -297,7 +319,7 @@ xlim([1, 100])
 set(gca, "XTick", [1, 10:10:100])
 
 subplot(5, 1, [2, 5])
-rp.plot()
+RPobj.plot()
 
 %% Example #6
 % Stochastic process (drawn from the Gaussian distribution) and corridor threshold
@@ -322,11 +344,11 @@ normType           = 'L1';
 %
 % Recurrence plot
 %
-try
-    rp = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, data);
-catch ERR
-    error(ERR.message)
-end
+% try
+    RPobj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, data);
+% catch ERR
+%     error(ERR.message)
+% end
 
 %
 % Plotting the recurrence matrix
@@ -341,7 +363,7 @@ xlim([1, 100])
 set(gca, "XTick", [1, 10:10:100])
 
 subplot(5, 1, [2, 5])
-rp.plot()
+RPobj.plot()
 
 %% Example #7
 % Sthocastic processes (drawn from the uniform distribution) and cross 
@@ -369,7 +391,7 @@ normType           = 'L1';
 % Recurrence plot
 %
 try
-    rp = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, ...
+    RPobj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, ...
             data1, data2);
 catch ERR
     error(ERR.message)
@@ -395,6 +417,6 @@ xlim([1, 150])
 set(gca, "XTick", [1, 10:10:150])
 
 subplot(6, 1, [3, 6])
-rp.plot('color')
+RPobj.plot('color')
 
 set(gcf, 'Position', [300, 80, 530, 600]);
