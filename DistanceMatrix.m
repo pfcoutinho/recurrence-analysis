@@ -1,5 +1,5 @@
 classdef DistanceMatrix < handle
-%DISTANCEMATRIX
+%DISTANCEMATRIX Distance matrix class
 %   
 %
 % DEPENDENCIES
@@ -70,8 +70,8 @@ classdef DistanceMatrix < handle
             self.M = dm(self);
             
             % add listeners to parameter change events
-            addlistener(self, 'parameterChangeEvt', @evthandle);
-        end % END DistanceMatrix() 
+            addlistener(self, 'parameterChangeEvt', @evthandler);
+        end %END DistanceMatrix() 
         
         
         function plot(self)
@@ -93,7 +93,7 @@ classdef DistanceMatrix < handle
             ay = [1, round(m/2), m];
             set(gca, 'XTick', ax)
             set(gca, 'YTick', ay)
-        end % END plot()
+        end %END plot()
         
         
         function set.embeddingDimension(self, value)
@@ -117,8 +117,7 @@ classdef DistanceMatrix < handle
                 self.embeddingDimension = value;
                 notify(self, 'parameterChangeEvt');
             end
-        end % END set.embeddingDimension()
-        
+        end %END set.embeddingDimension()
         
         function set.timeDelay(self, value)
         %SET.TIMEDELAY Time delay
@@ -141,8 +140,7 @@ classdef DistanceMatrix < handle
                 self.timeDelay = value;
                 notify(self, 'parameterChangeEvt');
             end
-        end % END set.timedelay()
-        
+        end %END set.timedelay()
         
         function set.normType(self, value)
         %SET.NORMTYPE Norm
@@ -151,7 +149,8 @@ classdef DistanceMatrix < handle
         %   can use these norms as follows:
         %       * as strings: "L1", "L2", and "L3";
         %       * as chars: 'L1', 'L2', and 'L3';
-        %       * as numbers: 1, 2, and 3 (respectively to L1, L2, and L3).
+        %       * as numbers: 1, 2, and 3 (which are equal to L1, L2, and L3), 
+        %           respectively).
         % -------------------------------------------------------------------- %
             value = self.chknorm(value);
             
@@ -160,15 +159,15 @@ classdef DistanceMatrix < handle
                 self.normType = value;
                 notify(self, 'parameterChangeEvt');
             end
-        end % END set.normtype()
-        
+        end %END set.normtype()
         
         function set.data(self, data)
         %SET.DATA Data from time series
         %
         %   VALIDATION Data from time series must be:
-        %       * non-empty
-        %       * numeric
+        %       * non-empty,
+        %       * numeric, and
+        %       * a vector
         % -------------------------------------------------------------------- %
             data = self.chkdata(data);
             
@@ -177,12 +176,12 @@ classdef DistanceMatrix < handle
                 self.data = data;
                 notify(self, 'parameterChangeEvt');
             end
-        end % END set.data()
+        end %END set.data()
         
-    end % END public methods
+    end %END public methods
     
     
-    methods (Access = protected)
+    methods (Access = private)
         
         function D = dm(self)
         %DM Distance matrix
@@ -251,7 +250,7 @@ classdef DistanceMatrix < handle
                                     + self.timeDelay*(k-1));
                     end
                 end
-            end %END generatespvectors()
+            end %END generatessvectors()
                 
             function D = calcdistances(self, X, Y)
             %CALCDISTANCES
@@ -265,52 +264,34 @@ classdef DistanceMatrix < handle
                         D = max(abs(X - Y), [], 2);
                 end
             end %END calcdistances()
-        end % END dm()
+        end %END dm()
         
+    end %END private methods
+    
+    
+    methods (Access = protected)
 
-        function self = evthandle(self, ~)
+        function self = evthandler(self, ~)
         %EVTHANDLE Function to handle the change of a parameter value
-        %   It calculates the distance matrix again.
+        %   If a parameter changes, it calculates the distance matrix again.
         % -------------------------------------------------------------------- %
-            if(~isempty(self.M))
+            if ~isempty(self.M)
                 self.M = dm(self);
             end
-        end % END evthandle()
+        end %END evthandler()
         
-    end % END protected methods
-    
-    
-    methods (Access = private, Static = true)
         
-        function chkembeddingdimension(value)
+        function chkembeddingdimension(self, value)
         %CHKEMBEDDINGDIMENSION 
         % -------------------------------------------------------------------- %
             DEFAULT_ERR_MSG = "Invalid parameter: embedding dimension.";
             
-            % check if value is empty
-            if(isempty(value))
-                ERR_MSG = strcat(DEFAULT_ERR_MSG, " Value cannot be empty.");
-                error(ERR_MSG);
-            end
-            
-            % check if value is numeric
-            if(~isnumeric(value))
-                ERR_MSG = strcat(DEFAULT_ERR_MSG, " Value must be numeric.");
-                error(ERR_MSG);
-            end
-            
-            % check if value is scalar
-            if(~isscalar(value))
-                ERR_MSG = strcat(DEFAULT_ERR_MSG, " Value must be a scalar.");
-                error(ERR_MSG);
-            end
-            
-            % check if value is an integer
-            if(mod(value, 1) ~= 0)
-                ERR_MSG = strcat(DEFAULT_ERR_MSG, " Value must be an integer.");
-                error(ERR_MSG);
-            end
-            
+            parameterName = "embedding dimension";
+            self.verifyifempty(value, parameterName);
+            self.verifyifnumeric(value, parameterName);
+            self.verifyifscalar(value, parameterName);
+            self.verifyifinteger(value, parameterName);
+                        
             % check if value is greater than or equal to 1
             if(value < 1)
                ERR_MSG = strcat(DEFAULT_ERR_MSG, " Value must be greater ", ...
@@ -319,45 +300,30 @@ classdef DistanceMatrix < handle
             end
         end
         
-        
-        function chktimedelay(value)
+        function chktimedelay(self, value)
         %CHKTIMEDELAY
-        % -------------------------------------------------------------------- %
-            DEFAULT_ERR_MSG = "Invalid parameter: time delay.";
+        % -------------------------------------------------------------------- %       
+            parameterName = "time delay";
+            self.verifyifempty(value, parameterName);
+            self.verifyifscalar(value, parameterName);
+         end
         
-            % Check if value is empty
-            if(isempty(value))
-                ERR_MSG = strcat(DEFAULT_ERR_MSG, " Value cannot be empty.");
-                error(ERR_MSG);
-            end
-            
-            % Check if value is scalar
-            if(~isscalar(value))
-                ERR_MSG = strcat(DEFAULT_ERR_MSG, " Value must be a scalar.");
-                error(ERR_MSG);
-            end
-        end
-        
-        
-        function value = chknorm(value)
+        function value = chknorm(self, value)
         %CHKNORM Validate the norm
         %   We will check the norm being used and, if possible, we will
         %   standardize it.
         % -------------------------------------------------------------------- %
             DEFAULT_ERR_MSG = "Invalid parameter: norm.";
             
-            % Check if value is empty
-            if(isempty(value))
-                ERR_MSG = strcat(DEFAULT_ERR_MSG, " Norm cannot be empty.");
-                error(ERR_MSG);
-            end
+            parameterName = "norm";
+            self.verifyifempty(value, parameterName);
             
-            % Check if value is a string
+            % check if value is a string (if it is, then convert to char)
             if(isstring(value))
                 value = char(value);
             end
             
-            % Check if value is numeric
+            % check if value is numeric (if it is, then convert to char);
             if(isnumeric(value))
                 switch(value)
                     case 1
@@ -374,11 +340,7 @@ classdef DistanceMatrix < handle
                 end
             end
             
-            % check if value is char
-            if(~ischar(value))
-                ERR_MSG = strcat(DEFAULT_ERR_MSG, " Unrecognizable norm.");
-                error(ERR_MSG);
-            end
+            self.verifyifchar(value, parameterName);
             
             % check if value is a valid norm
             VALID_NORMS = {'L1','l1', 'L-1', 'l-1', 'l1 norm', 'l-1 norm', ...
@@ -408,17 +370,13 @@ classdef DistanceMatrix < handle
         end
         
         
-        function data = chkdata(data)
+        function data = chkdata(self, data)
         %CHKDATA Check data from time series
         % -------------------------------------------------------------------- %
             DEFAULT_ERR_MSG = "Invalid time series.";
 
-            % check if data is empty
-            if(isempty(data))
-                ERR_MSG = strcat(DEFAULT_ERR_MSG, " Time series cannot ", ...
-                    "be empty.");
-                error(ERR_MSG);
-            end
+            parameterName = "data";
+            self.verifyifempty(data, parameterName);
             
             % data must be a cell
             if(~iscell(data))
@@ -433,21 +391,72 @@ classdef DistanceMatrix < handle
             end
             
             for i = 1:n
-                % check if data is a vector
-                if(~isvector(data{i}))
-                    ERR_MSG = strcat(DEFAULT_ERR_MSG, "Time series must be a ", ...
-                        "vector.");
-                    error(ERR_MSG);
-                end
-                
-                % check if it is numeric or logical
-                if(~isnumeric(data{i}) && ~islogical(data{i}))
-                    ERR_MSG = "Time series must be numeric or logical.";
-                    error(ERR_MSG);
-                end 
+                self.verifyifvector(data{i}, parameterName);
+                self.verifyifnumeric(data{i}, parameterName);
             end
-        end % END chkdata()
+        end %END chkdata()
         
-    end % END private, static methods
+    end %END protected methods
+    
+    
+    methods (Access = protected, Static = true)
+       
+        function verifyifempty(value, parameterName)
+            if isempty(value)
+                ERR_MSG = strcat("Invalid parameter: ", parameterName, ...
+                    ". Value cannot be empty");
+                error(ERR_MSG);
+            end
+        end %END verifyifempty()
+        
+        function verifyifnumeric(value, parameterName)
+            if ~isnumeric(value)
+                ERR_MSG = strcat("Invalid parameter: ", parameterName, ...
+                    ". Value must be numeric.");
+                error(ERR_MSG);
+            end
+        end %END verifyifnumeric()
+        
+        function verifyifscalar(value, parameterName)
+            if ~isscalar(value)
+                ERR_MSG = strcat("Invalid parameter: ", parameterName, ...
+                    ". Value must be a scalar.");
+                error(ERR_MSG);
+            end
+        end %END verifyifscalar()
+        
+        function verifyifinteger(value, parameterName)
+            if mod(value, 1) ~= 0
+                ERR_MSG = strcat("Invalid parameter: ", parameterName, ...
+                    ". Value must be an integer.");
+                error(ERR_MSG);
+            end
+        end %END verifyifinteger()
+        
+        function verifyifreal(value, parameterName)
+            if ~isreal(value)
+                ERR_MSG = strcat("Invalid parameter: ", parameterName, ...
+                    ". Value must be real.");
+                error(ERR_MSG);
+            end
+        end %END verifyifreal()
+        
+        function verifyifchar(value, parameterName)
+            if ~ischar(value)
+                ERR_MSG = strcat("Invalid parameter: ", parameterName, ...
+                    ". Value must be of type char.");
+                error(ERR_MSG);
+            end
+        end %END verifyifchar()
+        
+        function verifyifvector(value, parameterName)
+            if ~isvector(value)
+                ERR_MSG = strcat("Invalid parameter: ", parameterName, ...
+                    ". Value must be a vector.");
+                error(ERR_MSG);
+            end
+        end %END verifyifvector()
+        
+    end %END protected, static methods
     
 end
