@@ -1,4 +1,4 @@
-classdef RecurrenceQuantificationAnalysis
+classdef RecurrenceQuantificationAnalysis < handle
 %RECURRENCEQUANTIFICATIONANALYSIS Recurrence Quantification Analysis class
 %   This class performs recurrence quantification analysis (RQA) of recurrence 
 %   plots, which are binary matrices (i.e., A(i, j) = {0, 1}).
@@ -47,6 +47,14 @@ classdef RecurrenceQuantificationAnalysis
 %         verticalLinesHistogram  % Histogram of vertical lines
     end
     
+    properties (Abstract = true)
+        threshold
+        recurrenceRate
+        absoluteRecurrenceRateError
+        
+        RP
+    end
+    
     %
     % Events
     %
@@ -64,48 +72,18 @@ classdef RecurrenceQuantificationAnalysis
             % addlistener(self, 'callHistCalc', @self.histevthandle);
         end %END RecurrenceQuantificationAnalysis()
         
-        
-        function [threshold, recurrenceRate] = adaptivethreshold(self, RPobj, ...
-                targetRecurrenceRate)
-        %ADAPTIVETHRESHOLD Adaptive threshold
-        %   It uses binary search to find the threshold that gives the desired
-        %   recurrence rate.
-        % -------------------------------------------------------------------- %
-            [~, n] = size(RPobj.data);
-            
-            minThreshold = 0;
-            values = [0, 0];
-            for i = 1:n
-                values(i) = max(RPobj.data{i});
-            end
-            maxThreshold = max(values);
-
-            newThreshold = (minThreshold + maxThreshold)/2;
-            while true
-                RPobj.threshold = newThreshold;
-                recurrenceRate  = self.rr(RPobj.RP);
-                
-                if abs(recurrenceRate - targetRecurrenceRate) < 1e-6 || ...
-                        abs(maxThreshold - minThreshold) < 1e-12
-                    break;
-                elseif recurrenceRate > targetRecurrenceRate
-                    maxThreshold = newThreshold;
-                    newThreshold = (minThreshold + maxThreshold)/2;
-                elseif recurrenceRate < targetRecurrenceRate
-                    minThreshold = newThreshold;
-                    newThreshold = (minThreshold + maxThreshold)/2;
-                end
-            end
-            
-            threshold = newThreshold;
-        end
-        
     end %END private methods
     
-    methods (Static = true)
-        
-        
-        
+    methods (Access = protected)
+        %
+        % Measures based on the density of recurrence points
+        %
+        function recurrenceRate = rr(self)
+        %RR Recurrence Rate
+        % -------------------------------------------------------------------- %        
+            [m, n] = size(self.RP);
+            recurrenceRate = nnz(self.RP)/(m*n);
+        end % END rr()
     end
         
     methods (Access = protected, Static = true)
@@ -131,15 +109,6 @@ classdef RecurrenceQuantificationAnalysis
         end % END VHIST()
         
         %}
-        %
-        % Measures based on the density of recurrence points
-        %
-        function recurrenceRate = rr(RP)
-        %RR Recurrence Rate
-        % -------------------------------------------------------------------- %        
-            [m, n] = size(RP);
-            recurrenceRate = nnz(RP)/(m*n);
-        end % END rr()
         
         %{
         function value = AVGN(obj)
