@@ -28,20 +28,19 @@ classdef DistanceMatrix < handle
     % Properties
     %
     properties
-        % recurrence parameters
         embeddingDimension          % embedding dimension
         timeDelay                   % time delay
         normType                    % norm (L1, L2, or L-infinity)
-        data                        % data from time series
         
+        data                        % data from time series
         M = []                      % distance matrix
     end
     
     %
     % Events
     %
-    events
-        parameterChangeEvt          % event to handle a parameter change
+    events (NotifyAccess = protected)
+        parameterChangeEvt          % handle parameter changes
     end
     
     %
@@ -70,7 +69,7 @@ classdef DistanceMatrix < handle
             self.M = dm(self);
             
             % add listeners to parameter change events
-            addlistener(self, 'parameterChangeEvt', @evthandler);
+            addlistener(self, 'parameterChangeEvt', @parameterchangeevthandler);
         end %END DistanceMatrix() 
         
         
@@ -271,14 +270,14 @@ classdef DistanceMatrix < handle
     
     methods (Access = protected)
 
-        function self = evthandler(self, ~)
+        function self = parameterchangeevthandler(self, ~)
         %EVTHANDLE Function to handle the change of a parameter value
         %   If a parameter changes, it calculates the distance matrix again.
         % -------------------------------------------------------------------- %
             if ~isempty(self.M)
                 self.M = dm(self);
             end
-        end %END evthandler()
+        end %END parameterchangeevthandler()
         
         
         function chkembeddingdimension(self, value)
