@@ -94,21 +94,22 @@ clc
 %
 % Time series data
 %
-data = rand(30, 1);
+data = rand(50, 1);
 
 %
 % Recurrence parameters
 %
 embeddingDimension = 1;
 timeDelay          = 1;
-threshold          = 0.2;
+threshold          = 0.646;
 normType           = 'L1';
 
 %
 % Recurrence plot
 %
 try
-    RPobj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, data);
+    RPobj = RecurrencePlot(embeddingDimension, timeDelay, ...
+        'recurrence rate', threshold, normType, data)
 catch ERR
     error(ERR.message)
 end
@@ -129,10 +130,28 @@ RPobj.plot('color')
 %
 % setting a new threshold
 %
-RPobj.threshold = 0.3;
+RPobj.threshold = 0.08
 
 % Plot the recurrence matrix
 figure(2)
+
+subplot(5, 1, 1)
+plot(data)
+ylabel("x(t)")
+xlabel("t")
+xlim([1, numel(data)])
+set(gca, "XTick", [1, round(numel(data)/(2)), numel(data)]);
+
+subplot(5, 1, [2, 5])
+RPobj.plot('color')
+
+%
+% setting a new recurrence rate
+%
+RPobj.recurrenceRate = RPobj.recurrenceRate+eps;
+
+% Plot the recurrence matrix
+figure(3)
 
 subplot(5, 1, 1)
 plot(data)
@@ -151,7 +170,7 @@ newData = rand(40, 1);
 RPobj.data = newData;
 
 % Plot the recurrence matrix
-figure(3)
+figure(4)
 
 subplot(5, 1, 1)
 plot(newData)
@@ -169,7 +188,7 @@ RPobj.plot()
 RPobj.embeddingDimension = 2;
 
 % Plot the recurrence matrix
-figure(4)
+figure(5)
 
 subplot(5, 1, 1)
 plot(newData)
@@ -205,7 +224,8 @@ normType           = 'L2';
 % Recurrence plot
 %
 try
-    RPobj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, data);
+    RPobj = RecurrencePlot(embeddingDimension, timeDelay, ...
+                'threhsold', threshold, normType, data);
 catch ERR
     error(ERR.message)
 end
@@ -253,7 +273,8 @@ normType           = 'L2';
 % Recurrence plot
 %
 try
-    RPobj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, data);
+    RPobj = RecurrencePlot(embeddingDimension, timeDelay, ...
+                'threshold', threshold, normType, data);
 catch ERR
     error(ERR.message)
 end
@@ -294,14 +315,15 @@ end
 %
 embeddingDimension = 3;
 timeDelay          = 1;
-threshold          = 0.4;
+threshold          = 0.2;
 normType           = 'L-infinity';
 
 %
 % Recurrence plot
 %
 try
-    RPobj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, data);
+    RPobj = RecurrencePlot(embeddingDimension, timeDelay, ...
+                'threshold', threshold, normType, data);
 catch ERR
     error(ERR.message)
 end
@@ -344,11 +366,12 @@ normType           = 'L1';
 %
 % Recurrence plot
 %
-% try
-    RPobj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, data);
-% catch ERR
-%     error(ERR.message)
-% end
+try
+    RPobj = RecurrencePlot(embeddingDimension, timeDelay, ...
+                'recurrence rate', threshold, normType, data);
+catch ERR
+    error(ERR.message)
+end
 
 %
 % Plotting the recurrence matrix
@@ -384,15 +407,15 @@ data2 = rand(150, 1);
 %
 embeddingDimension = 1;
 timeDelay          = 1;
-threshold          = 0.1;
+threshold          = 0.5;
 normType           = 'L1';
 
 %
 % Recurrence plot
 %
 try
-    RPobj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, ...
-            data1, data2);
+    RPobj = RecurrencePlot(embeddingDimension, timeDelay, ...
+                'threshold', threshold, normType, data1, data2)
 catch ERR
     error(ERR.message)
 end
