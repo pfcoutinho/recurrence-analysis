@@ -36,17 +36,11 @@ classdef RecurrenceQuantificationAnalysis < handle
 %
 % SEE ALSO
 %
-% Last update: May 12, 2020
+% Last update: May 18, 2020
 % ============================================================================ %
     %
     % Properties
     %
-    properties
-        % Histograms
-%         diagonalLinesHistogram  % Histogram of diagonal lines
-%         verticalLinesHistogram  % Histogram of vertical lines
-    end
-    
     properties (Abstract = true)
         threshold
         recurrenceRate
@@ -54,61 +48,82 @@ classdef RecurrenceQuantificationAnalysis < handle
         
         RP
     end
+
+    properties (Access = private)
+        % Histograms
+        diagonalLinesHistogram  % Histogram of diagonal lines
+        verticalLinesHistogram  % Histogram of vertical lines
+    end
     
-    %
-    % Events
-    %
-%     events
-%         callHistCalc
-%     end
     
     %
     % Methods
     %
-    methods
-        
-        function self = RecurrenceQuantificationAnalysis()
-            % 
-            % addlistener(self, 'callHistCalc', @self.histevthandle);
-        end %END RecurrenceQuantificationAnalysis()
-        
-    end %END private methods
-    
     methods (Access = protected)
-        %
-        % Measures based on the density of recurrence points
-        %
         function recurrenceRate = rr(self)
-        %RR Recurrence Rate
+        %RR Recurrence rate
+        %   Recurrence rate is the density of recurrence points. It indicates
+        %   the probability of a state recurring.
         % -------------------------------------------------------------------- %        
             [m, n] = size(self.RP);
             recurrenceRate = nnz(self.RP)/(m*n);
         end % END rr()
-    end
-        
-    methods (Access = protected, Static = true)
 
-        %{
+
         %
         % Histograms
         %
-        function value = DHIST(self)
+        function H = dlhistogram(self)
         %DHIST Histogram of diagonal lines
         % -------------------------------------------------------------------- %
-            if(isempty(self.diagonalLinesHistogram))
-                notify(self, 'callHistCalc');
+            if isempty(self.diagonalLinesHistogram)
+                H = hod(self);
+            else
+                H = self.diagonalLinesHistogram;
             end
-            value = self.diagonalLinesHistogram;
-        end % END DHIST()
+            
+            function H = hod(self)
+            % ---------------------------------------------------------------- %
+                [m, n] = size(self.RP);
+
+                H = zeros(max(m, n), 1);
+
+                for i = -(n-1):1:(n-1)
+                    diagonalLine = [0; find(~diag(self.RP, i)); ...
+                                        numel(diag(self.RP, i)) + 1];
+                    lineLengths  = diff(diagonalLine) - 1;
+                    idx          = (lineLengths > 0);
+                    H(lineLengths(idx)) = H(lineLengths(idx)) + 1;
+                end
+            end % END hod()
+        end % END dlhist()
         
         
-        function value = VHIST(self)
+        function H = vlhist(self)
         %VHIST Histogram of vertical lines
         % -------------------------------------------------------------------- %
-            value = self.verticalLinesHistogram;
-        end % END VHIST()
-        
-        %}
+            if isempty(self.verticalLinesHistogram)
+                H = hov(self);
+            else
+                H = self.verticalLinesHistogram;
+            end
+            
+            function H = hov(self)
+            %HOD Histogram of vertical lines
+            % ---------------------------------------------------------------- %
+                [m, n] = size(self.RP);
+
+                H = zeros(max(m, n), 1);
+
+                for i = 1:m
+                    verticalLine = [0; find(~self.RP(1:end, i)); ...
+                                        numel(self.RP(1:end, i)) + 1];
+                    lineLengths  = diff(verticalLine) - 1;
+                    idx          = (lineLengths > 0);
+                    H(lineLengths(idx)) = H(lineLengths(idx)) + 1;
+                end
+            end % END hov()
+        end % END vlhist()
         
         %{
         function value = AVGN(obj)
@@ -202,74 +217,4 @@ classdef RecurrenceQuantificationAnalysis < handle
         
     end %END protected methods
     
-    %{
-    methods (Access = private)
-        function self = histevthandle(self, ~, ~)
-            self = chkhist(self, 'diagonal');
-            self = chkhist(self, 'vertical');
-        end
-        
-        function self = chkhist(self, opt)
-        % -------------------------------------------------------------------- %
-            switch opt
-                case 'diagonal'
-                    if(~hashist(self, opt))
-                        self.diagonalLinesHistogram = hod(self);
-                    end
-                case 'vertical'
-                    if(~hashist(self, opt))
-                        self.verticalLinesHistogram = hov(self);
-                    end
-            end
-            
-            function value = hashist(self, opt)
-                switch opt
-                    case 'diagonal'
-                        if(isempty(self.diagonalLinesHistogram))
-                            value = false;
-                        else
-                            value = true;
-                        end
-                    case 'vertical'
-                        if(isempty(self.verticalLinesHistogram))
-                            value = false;
-                        else
-                            value = true;
-                        end
-                end
-            end
-        end % END chkhist()
-        
-        function H = hod(obj)
-        %HOD Histogram of diagonal lines
-        % -------------------------------------------------------------------- %
-            [m, n] = size(obj.M);
-            
-            H = zeros(max(m, n), 1);
-            
-            for i = -(n-1):1:(n-1)
-                diagonalLine = [0; find(~diag(obj.M, i)); numel(diag(obj.M, i)) + 1];
-                lineLengths  = diff(diagonalLine) - 1;
-                idx          = (lineLengths > 0);
-                H(lineLengths(idx)) = H(lineLengths(idx)) + 1;
-            end
-        end % END hod()
-        
-        function H = hov(obj)
-        %HOD Histogram of vertical lines
-        % -------------------------------------------------------------------- %
-            [m, n] = size(obj.M);
-            
-            H = zeros(max(m, n), 1);
-            
-            for i = 1:m
-                verticalLine = [0; find(~obj.M(1:end, i)); numel(obj.M(1:end, i)) + 1];
-                lineLengths  = diff(verticalLine) - 1;
-                idx          = (lineLengths > 0);
-                H(lineLengths(idx)) = H(lineLengths(idx)) + 1;
-            end
-        end % END hov()
-        
-    end %END private methods
-    %}
 end
