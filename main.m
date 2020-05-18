@@ -16,9 +16,9 @@
 %% Example #1
 % Distance matrix of a stochastic process (drawn from the uniform distribution)
 
-close all
-clear
-clc
+close all;
+clear;
+clc;
 
 %
 % Time series data
@@ -87,9 +87,9 @@ dm.plot()
 %% Example #2
 % Recurrence plot of a stochastic process (drawn from the uniform distribution)
 
-close all
-clear
-clc
+close all;
+clear;
+clc;
 
 %
 % Time series data
@@ -101,7 +101,8 @@ data = rand(50, 1);
 %
 embeddingDimension = 1;
 timeDelay          = 1;
-threshold          = 0.646;
+parameter          = 'threshold';
+parameterValue     = 0.2;
 normType           = 'L1';
 
 %
@@ -109,7 +110,7 @@ normType           = 'L1';
 %
 try
     RPobj = RecurrencePlot(embeddingDimension, timeDelay, ...
-        'recurrence rate', threshold, normType, data)
+        parameter, parameterValue, normType, data);
 catch ERR
     error(ERR.message)
 end
@@ -130,7 +131,7 @@ RPobj.plot('color')
 %
 % setting a new threshold
 %
-RPobj.threshold = 0.08
+RPobj.threshold = 0.08;
 
 % Plot the recurrence matrix
 figure(2)
@@ -145,9 +146,7 @@ set(gca, "XTick", [1, round(numel(data)/(2)), numel(data)]);
 subplot(5, 1, [2, 5])
 RPobj.plot('color')
 
-%
-% setting a new recurrence rate
-%
+% Setting a new recurrence rate
 RPobj.recurrenceRate = RPobj.recurrenceRate+eps;
 
 % Plot the recurrence matrix
@@ -163,9 +162,7 @@ set(gca, "XTick", [1, round(numel(data)/(2)), numel(data)]);
 subplot(5, 1, [2, 5])
 RPobj.plot('color')
 
-%
-% setting a new time series
-%
+% Setting a new time series
 newData = rand(40, 1);
 RPobj.data = newData;
 
@@ -178,13 +175,11 @@ ylabel("x(t)")
 xlabel("t")
 xlim([1, numel(newData)])
 set(gca, "XTick", [1, round(numel(newData)/(2)), numel(newData)]);
-
+    
 subplot(5, 1, [2, 5])
 RPobj.plot()
 
-%
-% setting a new embedding dimension
-%
+% Setting a new embedding dimension
 RPobj.embeddingDimension = 2;
 
 % Plot the recurrence matrix
@@ -217,7 +212,7 @@ data = sin(2*pi*0.05*(1:100));
 %
 embeddingDimension = 2;
 timeDelay          = 3;
-threshold          = 0.2;
+parameterValue     = 0.2;
 normType           = 'L2';
 
 %
@@ -225,7 +220,7 @@ normType           = 'L2';
 %
 try
     RPobj = RecurrencePlot(embeddingDimension, timeDelay, ...
-                'threhsold', threshold, normType, data);
+                'threshold', parameterValue, normType, data);
 catch ERR
     error(ERR.message)
 end
@@ -266,7 +261,7 @@ end
 %
 embeddingDimension = 2;
 timeDelay          = 1;
-threshold          = 0.3;
+parameterValue          = 0.3;
 normType           = 'L2';
 
 %
@@ -274,7 +269,7 @@ normType           = 'L2';
 %
 try
     RPobj = RecurrencePlot(embeddingDimension, timeDelay, ...
-                'threshold', threshold, normType, data);
+                'threshold', parameterValue, normType, data);
 catch ERR
     error(ERR.message)
 end
@@ -315,7 +310,7 @@ end
 %
 embeddingDimension = 3;
 timeDelay          = 1;
-threshold          = 0.2;
+parameterValue          = 0.2;
 normType           = 'L-infinity';
 
 %
@@ -323,7 +318,7 @@ normType           = 'L-infinity';
 %
 try
     RPobj = RecurrencePlot(embeddingDimension, timeDelay, ...
-                'threshold', threshold, normType, data);
+                'threshold', parameterValue, normType, data);
 catch ERR
     error(ERR.message)
 end
@@ -360,7 +355,7 @@ data = randn(100, 1);
 %
 embeddingDimension = 1;
 timeDelay          = 1;
-threshold          = [0.1, 0.3];    % corridor threshold
+parameterValue     = [0.1, 0.3];    % corridor threshold
 normType           = 'L1';
 
 %
@@ -368,7 +363,7 @@ normType           = 'L1';
 %
 try
     RPobj = RecurrencePlot(embeddingDimension, timeDelay, ...
-                'recurrence rate', threshold, normType, data);
+                'threshold', parameterValue, normType, data);
 catch ERR
     error(ERR.message)
 end
@@ -407,7 +402,7 @@ data2 = rand(150, 1);
 %
 embeddingDimension = 1;
 timeDelay          = 1;
-threshold          = 0.5;
+parameterValue     = 0.5;
 normType           = 'L1';
 
 %
@@ -415,7 +410,7 @@ normType           = 'L1';
 %
 try
     RPobj = RecurrencePlot(embeddingDimension, timeDelay, ...
-                'threshold', threshold, normType, data1, data2)
+                'threshold', parameterValue, normType, data1, data2);
 catch ERR
     error(ERR.message)
 end
