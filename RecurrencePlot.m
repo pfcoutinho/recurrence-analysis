@@ -32,7 +32,7 @@ classdef RecurrencePlot < DistanceMatrix & ...
 %   Patrick Franco Coutinho
 %   pfcoutinho@outlook.com
 %
-% Last update: May 15, 2020
+% Last update: May 18, 2020
 % ============================================================================ %
     %
     % Properties
@@ -53,32 +53,34 @@ classdef RecurrencePlot < DistanceMatrix & ...
                                     % necessary)
         
         RP = []                     % recurrence or cross recurrence plot
+                                    
+    end %END properties
+    
+    properties (Access = private)
         
         recurrenceParameter         % keeps track about the recurrence parameter
                                     % being used, if it is the threshold or the
                                     % recurrence rate; recurrenceParameter is
                                     % updated to match the last parameter set by
                                     % user
-                                    
-    end %END properties
-    
-    properties (Access = private)
         
-        flagFromInside = false;     % tells if the change comes from inside (for
-                                    % example, when we are updating the value of
-                                    % the threshold after obtaining the RP for a
-                                    % given value of the recurrence rate and
-                                    % vice-versa) or from the outside (for
-                                    % example, when the user set a new value for
-                                    % the threshold or the recurrence rate)
+        flagFromInside = false;     % tells if the parameter change comes from 
+                                    % within the class (for example, when we are
+                                    % updating the value of the threshold after 
+                                    % obtaining the RP for a given value of the 
+                                    % recurrence rate and vice-versa) or from 
+                                    % the outside (for example, when the user 
+                                    % set a new value for the threshold or the
+                                    % recurrence rate)
     end
     
     %
     % Events
     %
     events (NotifyAccess = private)
-        thresholdChangeEvt
-        recurrenceRateChangeEvt
+        thresholdChangeEvt           % triggered when threshold value changes
+        recurrenceRateChangeEvt      % triggered when recurrenceRate value changes
+        recurrenceParameterChangeEvt % triggered when recurrenceParameter changes
     end
     
     %
@@ -93,9 +95,8 @@ classdef RecurrencePlot < DistanceMatrix & ...
         % -------------------------------------------------------------------- %
             self = self@DistanceMatrix(embeddingDimension, timeDelay, ...
                         normType, varargin{1:end});
-            self = self@RecurrenceQuantificationAnalysis();
             
-            self.recurrenceParameter = recurrenceParameter;
+            self.recurrenceParameter = string(recurrenceParameter);
             switch self.recurrenceParameter
                 case "threshold"
                     self.threshold = recurrenceParameterValue;
@@ -103,6 +104,9 @@ classdef RecurrencePlot < DistanceMatrix & ...
                 case "recurrence rate"
                     self.recurrenceRate = recurrenceParameterValue;
                     self = recurrenceraterp(self);
+                otherwise
+                    error("Unrecognized recurrence parameter: %s.", ...
+                            self.recurrenceParameter);
             end
             
             % these are the listeners to the event that is triggered when
@@ -141,7 +145,7 @@ classdef RecurrencePlot < DistanceMatrix & ...
             set(gca, 'YTick', ay)
         end %END plot()
         
-
+        
         function set.threshold(self, value)
         %SET.THRESHOLD Assigns threshold parameter
         % -------------------------------------------------------------------- %
@@ -191,14 +195,17 @@ classdef RecurrencePlot < DistanceMatrix & ...
             % is computed directly from the RP)
             self.flagFromInside = true;
             self.recurrenceRate = self.rr();
-            self.flagFromInside = false;
-            
             self.absoluteRecurrenceRateError = 0;
+            self.flagFromInside = false;
         end %END rpusingthreshold()
         
         function self = recurrenceraterp(self)
-        %RECURRENCERATERP Recurrence or cross recurrence plot based on
-        %recurrence rate
+        %RECURRENCERATERP This function employes recurrence rate to calculate
+        %the (cross) recurrence plot
+        %   It is not always possible to find the threshold that corresponds to
+        %   a specific value of the recurrence rate for any given data series.
+        %   This is related to structures which are present in recurrence
+        %   plots.
         % -------------------------------------------------------------------- %
             [~, n] = size(self.data);
             
@@ -236,7 +243,7 @@ classdef RecurrencePlot < DistanceMatrix & ...
             self.flagFromInside = true;
             self.threshold = newThreshold;
             self.flagFromInside = false;
-        end %END rpusingrecurrencerate()
+        end %END recurrenceraterp()
         
         
         function self = parameterchangeevthandler(self, ~)
@@ -257,27 +264,29 @@ classdef RecurrencePlot < DistanceMatrix & ...
         %   When flagFromInside is UP (i.e., it is equal to 1), the RP isn't
         %   recalculated and recurrenceParameter isn't updated
         % -------------------------------------------------------------------- %
-            if ~isempty(self.RP) && ~self.flagFromInside
-                % computes a new RP
-                self = thresholdrp(self);
-            end
+            if ~self.flagFromInside
+                if ~isempty(self.RP)
+                    % computes a new RP
+                    self = thresholdrp(self);
+                end
             
-            if ~self.flagFromInside && ...
-                    strcmp(self.recurrenceParameter, "recurrence rate")
-                self.recurrenceParameter = "threshold";
+                if strcmp(self.recurrenceParameter, "recurrence rate")
+                    self.recurrenceParameter = "threshold";
+                end
             end
         end
         
         function self = recurrenceratechangeevthandler(self, ~)
         % -------------------------------------------------------------------- %
-            if ~self.flagFromInside && ~isempty(self.RP)
-                % computes a new RP
-                self = recurrenceraterp(self);
-            end
-            
-            if ~self.flagFromInside && ...
-                    strcmp(self.recurrenceParameter, "threshold")
-                self.recurrenceParameter = "recurrence rate";
+            if ~self.flagFromInside
+                if ~isempty(self.RP)
+                    % computes a new RP
+                    self = recurrenceraterp(self);
+                end
+
+                if strcmp(self.recurrenceParameter, "threshold")
+                    self.recurrenceParameter = "recurrence rate";
+                end
             end
         end
         
@@ -329,9 +338,10 @@ classdef RecurrencePlot < DistanceMatrix & ...
             parameterName = "recurrence rate";
             self.verifyifempty(value, parameterName);
             self.verifyifnumeric(value, parameterName);
+            self.verifyifscalar(value, parameterName);
             self.verifyifreal(value, parameterName);
 
-            if value < 0 || value > 1
+            if (value < 0) || (value > 1)
                 error(strcat("Invalid parameter: ", parameterName, ...
                     ". Value must be in the interval [0, 1]."));
             end
