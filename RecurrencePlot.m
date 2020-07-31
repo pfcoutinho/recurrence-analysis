@@ -1,7 +1,7 @@
-classdef RecurrencePlot < DistanceMatrix & ...
-                            RecurrenceQuantificationAnalysis & ...
-                            handle
-%RECURRENCEPLOT Recurrence plot class
+classdef RecurrencePlot < DistanceMatrix ...
+                          & RecurrenceQuantificationAnalysis ...
+                          & handle
+% RECURRENCEPLOT Recurrence plot class
 %   Recurrence plot (RP) is a tool for non-linear data analysis. It is a binary
 %   matrix in which the recurrence points are represented by black or colored
 %   points. RPs are a kind of thresholded similarity matrix and reveal interes-
@@ -11,15 +11,18 @@ classdef RecurrencePlot < DistanceMatrix & ...
 %   cross-recurrence plot (CRP) between two data series.
 %
 % DEPENDECIES
+%
 %   DistanceMatrix.m
 %
 % SYNTAX
+%
 %   obj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, ...
 %           data);
 %   obj = RecurrencePlot(embeddingDimension, timeDelay, threshold, normType, ...
 %           data1, data2);
 %
 % INPUT
+%
 %   embeddingDimension
 %   timeDelay
 %   threshold
@@ -28,17 +31,18 @@ classdef RecurrencePlot < DistanceMatrix & ...
 % REFERENCES
 %   
 %
-% AUTHOR
+% CONTACT
+%
 %   Patrick Franco Coutinho
 %   pfcoutinho@outlook.com
 %
-% Last update: May 18, 2020
+% LAST UPDATE: May 18, 2020
 % ============================================================================ %
-    %
+
+    % ======================================================================== %
     % Properties
-    %
+    % ======================================================================== %
     properties
-        
         threshold                   % threshold (it is estimated if the value of
                                     % the recurrence rate is given)
                                     
@@ -52,8 +56,7 @@ classdef RecurrencePlot < DistanceMatrix & ...
                                     % rate will be achieved, so an error term is
                                     % necessary)
         
-        RP = []                     % recurrence or cross recurrence plot
-                                    
+        RP = []                     % recurrence or cross recurrence plot                      
     end %END properties
     
     properties (Access = private)
@@ -74,23 +77,26 @@ classdef RecurrencePlot < DistanceMatrix & ...
                                     % recurrence rate)
     end
     
-    %
+    % ======================================================================== %
     % Events
-    %
+    % ======================================================================== %
     events (NotifyAccess = private)
-        thresholdChangeEvt           % triggered when threshold value changes
-        recurrenceRateChangeEvt      % triggered when recurrenceRate value changes
-        recurrenceParameterChangeEvt % triggered when recurrenceParameter changes
+        thresholdChangeEvt           % triggers when threshold value changes
+        recurrenceRateChangeEvt      % triggers when recurrenceRate value changes
+        recurrenceParameterChangeEvt % triggers when recurrenceParameter changes
     end
     
-    %
+    % ======================================================================== %
     % Methods
-    %
+    % ======================================================================== %
     methods
 
-        function self = RecurrencePlot(embeddingDimension, timeDelay, ...
-                            recurrenceParameter, recurrenceParameterValue, ...
-                            normType, varargin)
+        function self = RecurrencePlot(embeddingDimension, ...
+                                       timeDelay, ...
+                                       recurrenceParameter, ...
+                                       recurrenceParameterValue, ...
+                                       normType, ...
+                                       varargin)
         %RECURRENCEPLOT Recurrence plot class constructor
         % -------------------------------------------------------------------- %
             self = self@DistanceMatrix(embeddingDimension, timeDelay, ...
@@ -247,6 +253,7 @@ classdef RecurrencePlot < DistanceMatrix & ...
         
         
         function self = parameterchangeevthandler(self, ~)
+        %PARAMETERCHANGEEVTHANDLER
         % -------------------------------------------------------------------- %
             self = parameterchangeevthandler@DistanceMatrix(self);            
             if ~isempty(self.RP)
@@ -260,7 +267,7 @@ classdef RecurrencePlot < DistanceMatrix & ...
         end
         
         function self = thresholdchangeevthandler(self, ~)
-        %
+        %THRESHOLDCHANGEEVTHANDLER
         %   When flagFromInside is UP (i.e., it is equal to 1), the RP isn't
         %   recalculated and recurrenceParameter isn't updated
         % -------------------------------------------------------------------- %
@@ -277,6 +284,7 @@ classdef RecurrencePlot < DistanceMatrix & ...
         end
         
         function self = recurrenceratechangeevthandler(self, ~)
+        %RECURRENCERATECHANGEEVTHANDLER
         % -------------------------------------------------------------------- %
             if ~self.flagFromInside
                 if ~isempty(self.RP)
